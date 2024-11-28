@@ -2,8 +2,8 @@ package main
 
 import (
   "fmt"
-//  "strconv"
   "os"
+  "time"
   "github.com/alexflint/go-arg"
 )
 
@@ -11,7 +11,7 @@ const RC_OK = 0
 const RC_ERR_ARGS = 5
 
 var args struct {
-	Expire string
+	SetExpireDate string
 	Path string
 	Prune bool
 }
@@ -32,16 +32,22 @@ func main() {
 	arg.MustParse(&args)
 
 	// set expiration date
-	if (args.Expire != ""){
+	if (args.SetExpireDate != "") {
 		checkPath()
 		if args.Prune {
 			printError("Cannot use --prune with --setexpiredate")
 			os.Exit(RC_ERR_ARGS)
 		}
-		fmt.Printf("setting expiration date on snapshot '%s' to %s", args.Path, args.Expire)
+		parsedTime, err := time.Parse(time.DateTime, args.SetExpireDate)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(5)
+		}
+		fmt.Printf("setting expiration date on snapshot '%s' to %s", args.Path, parsedTime.Format(time.DateTime))
 		os.Exit(RC_OK)
 	}
 
+	// prune expired snapshots
 	if args.Prune {
 		checkPath()
 		fmt.Printf("pruning all expired snapshots in '%s'", args.Path)
