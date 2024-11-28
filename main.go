@@ -11,7 +11,7 @@ const RC_OK = 0
 const RC_ERR_ARGS = 5
 
 var args struct {
-	SetExpireDate string
+	SetExpireDate string `arg:"-s,--set-expire-date"`
 	Path string
 	Prune bool
 }
