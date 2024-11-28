@@ -4,6 +4,8 @@ import (
   "fmt"
   "os"
   "time"
+  "errors"
+  "syscall"
   "github.com/alexflint/go-arg"
 )
 
@@ -27,6 +29,24 @@ func checkPath() {
 	}
 }
 
+func getFsType(path string) (string, error) {
+	var stat syscall.Statfs_t
+	if err := syscall.Statfs(path, &stat); err != nil {
+			return "", err
+	}
+
+	// File system types in Linux (incomplete list)
+	supportedFilesystems := map[int64]string{
+			0x9123683E: "btrfs",
+	}
+
+	fsType, ok := supportedFilesystems[stat.Type]
+	if !ok {
+		return "", errors.New(fmt.Sprintf("unknown filesystem type: %x", stat.Type))
+	}
+	return fsType, nil
+}
+
 func main() {
 
 	arg.MustParse(&args)
@@ -43,13 +63,19 @@ func main() {
 			fmt.Println(err)
 			os.Exit(5)
 		}
-		fmt.Printf("setting expiration date on snapshot '%s' to %s", args.Path, parsedTime.Format(time.DateTime))
+		fmt.Printf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
 		os.Exit(RC_OK)
 	}
 
 	// prune expired snapshots
 	if args.Prune {
 		checkPath()
-		fmt.Printf("pruning all expired snapshots in '%s'", args.Path)
+		fmt.Printf("pruning all expired snapshots in '%s'\n", args.Path)
+		fsType, err := getFsType(args.Path)
+		if err != nil {
+			fmt.Println(err)
+			printError("cannot read specified path")
+		}
+		fmt.Println("detected filesystem:", fsType)
 	}
 }
