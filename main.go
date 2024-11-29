@@ -6,6 +6,7 @@ import (
   "time"
   "errors"
   "syscall"
+  "plugin"
   "github.com/alexflint/go-arg"
 )
 
@@ -77,5 +78,12 @@ func main() {
 			printError("cannot read specified path")
 		}
 		fmt.Println("detected filesystem:", fsType)
+		pluginPath := fmt.Sprintf("./%s.so", fsType)
+		plugin, err := plugin.Open(pluginPath)
+		pruneFunc, err := plugin.Lookup("pruneExpiredSnapshots")
+		if err != nil {
+			panic(err)
+		}
+		pruneFunc.(func())()
 	}
 }
