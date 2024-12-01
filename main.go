@@ -78,9 +78,13 @@ func main() {
 			printError("cannot read specified path")
 		}
 		fmt.Println("detected filesystem:", fsType)
-		pluginPath := fmt.Sprintf("./%s.so", fsType)
-		plugin, err := plugin.Open(pluginPath)
-		pruneFunc, err := plugin.Lookup("pruneExpiredSnapshots")
+		pluginPath := fmt.Sprintf("./filesystems/%s.so", fsType)
+		p, err := plugin.Open(pluginPath)
+		if err != nil {
+			panic(err)
+		}
+		//pruneFunc, err := p.Lookup("pruneExpiredSnapshots")
+		pruneFunc, err := p.Lookup("setExpireDate")
 		if err != nil {
 			panic(err)
 		}
