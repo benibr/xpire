@@ -12,6 +12,7 @@ import (
 
 const RC_OK = 0
 const RC_ERR_ARGS = 5
+const RC_ERR_FS = 6
 
 var args struct {
 	SetExpireDate string `arg:"-s,--set-expire-date"`
@@ -66,16 +67,13 @@ func main() {
 		}
 		fmt.Printf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
 		os.Exit(RC_OK)
-	}
-
-	// prune expired snapshots
-	if args.Prune {
+	} else if args.Prune {
 		checkPath()
 		fmt.Printf("pruning all expired snapshots in '%s'\n", args.Path)
 		fsType, err := getFsType(args.Path)
 		if err != nil {
 			fmt.Println(err)
-			printError("cannot read specified path")
+		  os.Exit(RC_ERR_FS)
 		}
 		fmt.Println("detected filesystem:", fsType)
 		pluginPath := fmt.Sprintf("./filesystems/%s.so", fsType)
@@ -89,5 +87,7 @@ func main() {
 			panic(err)
 		}
 		pruneFunc.(func())()
+	} else {
+		printError("you have to specicy either --set-expire-date or --prune")
 	}
 }
