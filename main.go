@@ -49,6 +49,21 @@ func getFsType(path string) (string, error) {
 	return fsType, nil
 }
 
+func loadPlugin(path string) plugin.Plugin {
+	fsType, err := getFsType(path)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(RC_ERR_FS)
+	}
+	fmt.Println("detected filesystem:", fsType)
+	pluginPath := fmt.Sprintf("./filesystems/%s.so", fsType)
+	plugin, err := plugin.Open(pluginPath)
+	if err != nil {
+		panic(err)
+	}
+	return *plugin
+}
+
 func main() {
 
 	arg.MustParse(&args)
@@ -71,18 +86,8 @@ func main() {
 	} else if args.Prune {
 		checkPath()
 		fmt.Printf("pruning all expired snapshots in '%s'\n", args.Path)
-		fsType, err := getFsType(args.Path)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(RC_ERR_FS)
-		}
-		fmt.Println("detected filesystem:", fsType)
-		pluginPath := fmt.Sprintf("./filesystems/%s.so", fsType)
-		p, err := plugin.Open(pluginPath)
-		if err != nil {
-			panic(err)
-		}
-		pruneSym, err := p.Lookup("PruneExpiredSnapshots")
+		plugin := loadPlugin(args.Path)
+		pruneSym, err := plugin.Lookup("PruneExpiredSnapshots")
 		if err != nil {
 			panic(err)
 		}
