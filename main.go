@@ -3,11 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/alexflint/go-arg"
 	"os"
 	"plugin"
 	"syscall"
 	"time"
+
+	"github.com/alexflint/go-arg"
+	"google.golang.org/genproto/googleapis/type/datetime"
 )
 
 const RC_OK = 0
@@ -81,11 +83,24 @@ func main() {
 			os.Exit(RC_ERR_ARGS)
 		}
 		fmt.Printf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
+		plugin := loadPlugin(args.Path)
+		setSym, err := plugin.Lookup("SetExpireDate")
+		if err != nil {
+			panic(err)
+		}
+		setFunc, ok := setSym.(func(bool, error) (time.Time, string))
+		if !ok {
+			panic("unexpected type from module symbol")
+		}
+		ok, _ := setFunc(args.SetExpireDate, args.Path)
+		if !ok {
+			panic("cannot set expiry date")
+		}
+
 		os.Exit(RC_OK)
 
 	} else if args.Prune {
 		checkPath()
-		fmt.Printf("pruning all expired snapshots in '%s'\n", args.Path)
 		plugin := loadPlugin(args.Path)
 		pruneSym, err := plugin.Lookup("PruneExpiredSnapshots")
 		if err != nil {
@@ -96,6 +111,7 @@ func main() {
 			fmt.Println(ok)
 			panic("unexpected type from module symbol")
 		}
+		fmt.Printf("pruning all expired snapshots in '%s'\n", args.Path)
 		pruned, err := pruneFunc(args.Path)
 		fmt.Print("Pruned snapshots:")
 		for i, _ := range pruned {
