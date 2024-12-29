@@ -86,14 +86,13 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		pruneFunc, _ := pruneSym.(func())
-		//		if !ok {
-		//			fmt.Println(ok)
-		//			panic("unexpected type from module symbol")
-		//		}
-		pruneFunc()
-		//strings, err := pruneFunc()
-		//fmt.Println(strings)
+		pruneFunc, ok := pruneSym.(func(string) ([]string, error))
+		if !ok {
+			fmt.Println(ok)
+			panic("unexpected type from module symbol")
+		}
+		strings, err := pruneFunc("/mnt")
+		fmt.Println(strings)
 	} else {
 		printError("you have to specicy either --set-expire-date or --prune")
 	}
