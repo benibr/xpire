@@ -1,13 +1,13 @@
 package main
 
 import (
-  "fmt"
-  "os"
-  "time"
-  "errors"
-  "syscall"
-  "plugin"
-  "github.com/alexflint/go-arg"
+	"errors"
+	"fmt"
+	"github.com/alexflint/go-arg"
+	"os"
+	"plugin"
+	"syscall"
+	"time"
 )
 
 const RC_OK = 0
@@ -16,8 +16,8 @@ const RC_ERR_FS = 6
 
 var args struct {
 	SetExpireDate string `arg:"-s,--set-expire-date"`
-	Path string
-	Prune bool
+	Path          string
+	Prune         bool
 }
 
 func printError(msg string) {
@@ -34,12 +34,12 @@ func checkPath() {
 func getFsType(path string) (string, error) {
 	var stat syscall.Statfs_t
 	if err := syscall.Statfs(path, &stat); err != nil {
-			return "", err
+		return "", err
 	}
 
 	// File system types in Linux (incomplete list)
 	supportedFilesystems := map[int64]string{
-			0x9123683E: "btrfs",
+		0x9123683E: "btrfs",
 	}
 
 	fsType, ok := supportedFilesystems[stat.Type]
@@ -54,7 +54,7 @@ func main() {
 	arg.MustParse(&args)
 
 	// set expiration date
-	if (args.SetExpireDate != "") {
+	if args.SetExpireDate != "" {
 		checkPath()
 		if args.Prune {
 			printError("Cannot use --prune with --setexpiredate")
@@ -73,7 +73,7 @@ func main() {
 		fsType, err := getFsType(args.Path)
 		if err != nil {
 			fmt.Println(err)
-		  os.Exit(RC_ERR_FS)
+			os.Exit(RC_ERR_FS)
 		}
 		fmt.Println("detected filesystem:", fsType)
 		pluginPath := fmt.Sprintf("./filesystems/%s.so", fsType)
@@ -82,11 +82,18 @@ func main() {
 			panic(err)
 		}
 		//pruneFunc, err := p.Lookup("pruneExpiredSnapshots")
-		pruneFunc, err := p.Lookup("setExpireDate")
+		pruneSym, err := p.Lookup("PruneExpiredSnapshots")
 		if err != nil {
 			panic(err)
 		}
-		pruneFunc.(func())()
+		pruneFunc, _ := pruneSym.(func())
+		//		if !ok {
+		//			fmt.Println(ok)
+		//			panic("unexpected type from module symbol")
+		//		}
+		pruneFunc()
+		//strings, err := pruneFunc()
+		//fmt.Println(strings)
 	} else {
 		printError("you have to specicy either --set-expire-date or --prune")
 	}
