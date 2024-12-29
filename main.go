@@ -91,8 +91,11 @@ func main() {
 			fmt.Println(ok)
 			panic("unexpected type from module symbol")
 		}
-		strings, err := pruneFunc("/mnt")
-		fmt.Println(strings)
+		pruned, err := pruneFunc(args.Path)
+		fmt.Print("Pruned snapshots:")
+		for i, _ := range pruned {
+			print(i)
+		}
 
 	} else {
 		printError("you have to specicy either --set-expire-date or --prune")
