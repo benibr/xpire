@@ -63,10 +63,11 @@ func main() {
 		parsedTime, err := time.Parse(time.DateTime, args.SetExpireDate)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(5)
+			os.Exit(RC_ERR_ARGS)
 		}
 		fmt.Printf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
 		os.Exit(RC_OK)
+
 	} else if args.Prune {
 		checkPath()
 		fmt.Printf("pruning all expired snapshots in '%s'\n", args.Path)
@@ -81,7 +82,6 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		//pruneFunc, err := p.Lookup("pruneExpiredSnapshots")
 		pruneSym, err := p.Lookup("PruneExpiredSnapshots")
 		if err != nil {
 			panic(err)
@@ -93,6 +93,7 @@ func main() {
 		}
 		strings, err := pruneFunc("/mnt")
 		fmt.Println(strings)
+
 	} else {
 		printError("you have to specicy either --set-expire-date or --prune")
 	}
