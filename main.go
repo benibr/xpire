@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/alexflint/go-arg"
-	"google.golang.org/genproto/googleapis/type/datetime"
 )
 
 const RC_OK = 0
@@ -88,11 +87,11 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		setFunc, ok := setSym.(func(bool, error) (time.Time, string))
+		setFunc, ok := setSym.(func(time.Time, string) (bool, error))
 		if !ok {
 			panic("unexpected type from module symbol")
 		}
-		ok, _ := setFunc(args.SetExpireDate, args.Path)
+		ok, err = setFunc(parsedTime, args.Path)
 		if !ok {
 			panic("cannot set expiry date")
 		}
@@ -114,7 +113,7 @@ func main() {
 		fmt.Printf("pruning all expired snapshots in '%s'\n", args.Path)
 		pruned, err := pruneFunc(args.Path)
 		fmt.Print("Pruned snapshots:")
-		for i, _ := range pruned {
+		for i := range pruned {
 			print(i)
 		}
 
