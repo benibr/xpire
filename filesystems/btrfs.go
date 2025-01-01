@@ -14,8 +14,8 @@ import (
 func SetExpireDate(t time.Time, path string) (bool, error) {
 	//FIXME: check XATTR_SUPPORTED first
 	//FIXME: we need to find the root btrfs subvolume first
-	subvolID := btrfs.IsSubvolume(path)
-	fmt.Println(subvolID)
+	b, _ := btrfs.Open(path, false)
+	fmt.Println(b.SubvolList())
 	if err := xattr.Set(path, "user.expire", []byte(t.Format(time.DateTime))); err != nil {
 		panic(err)
 	}
