@@ -81,7 +81,6 @@ func main() {
 			fmt.Println(err)
 			os.Exit(RC_ERR_ARGS)
 		}
-		fmt.Printf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
 		plugin := loadPlugin(args.Path)
 		setSym, err := plugin.Lookup("SetExpireDate")
 		if err != nil {
@@ -91,6 +90,7 @@ func main() {
 		if !ok {
 			panic("unexpected type from module symbol")
 		}
+		fmt.Printf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
 		ok, err = setFunc(parsedTime, args.Path)
 		if !ok {
 			panic("cannot set expiry date")
