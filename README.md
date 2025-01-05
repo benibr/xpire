@@ -2,7 +2,7 @@
 
 version 0.1:
 
-- [ ] rename to xpire
+- [x] rename to xpire
 - [ ] btrfs: prune with find all subvolumes
 - [ ] btrfs: warn if not a subvolume or snapshot
 - [ ] parameter: -p plugin selection
