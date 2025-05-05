@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"errors"
 	"time"
 	"path/filepath"
 	"github.com/dennwc/btrfs"
@@ -12,14 +13,17 @@ const TimeFormat = time.DateTime
 // internal functions
 
 // mandatory functions called by fsexpire
-func SetExpireDate(t time.Time, path string) (bool, error) {
+func SetExpireDate(t time.Time, path string) (error) {
 	//FIXME: check XATTR_SUPPORTED first
-	//FIXME: we need to find the root btrfs subvolume first
-	btrfs.Open(path, false)
+	isSubVolume, _ := btrfs.IsSubVolume(path)
+	if isSubVolume == false {
+		errorMsg := errors.New(fmt.Sprintf("'%s' is not a btrfs subvolume", path))
+		return errorMsg
+	}
 	if err := xattr.Set(path, "user.expire", []byte(t.Format(TimeFormat))); err != nil {
 		panic(err)
 	}
-	return true, nil
+	return nil
 }
 
 func PruneExpiredSnapshots(path string) ([]string, error) {

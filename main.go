@@ -86,18 +86,21 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		setFunc, ok := setSym.(func(time.Time, string) (bool, error))
+		setFunc, ok := setSym.(func(time.Time, string) (error))
 		if !ok {
 			panic("unexpected type from module symbol")
 		}
 		fmt.Printf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
-		ok, err = setFunc(parsedTime, args.Path)
-		if !ok {
-			panic("cannot set expiry date")
+		err = setFunc(parsedTime, args.Path)
+		if err != nil {
+			fmt.Println("Error: Cannot set expiry date")
+			fmt.Println(err)
+			os.Exit(RC_ERR_FS)
 		}
 
 		os.Exit(RC_OK)
 
+	// prune
 	} else if args.Prune {
 		checkPath()
 		plugin := loadPlugin(args.Path)
