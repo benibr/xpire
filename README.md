@@ -1,9 +1,9 @@
 # xpire - tool to manage data expiration
 
-version 0.1:
+## version 0.1:
 
 - [x] rename to xpire
-- [ ] btrfs: prune with find all subvolumes
+- [x] btrfs: prune with find all subvolumes
 - [ ] btrfs: warn if not a subvolume or snapshot
 - [ ] parameter: -p plugin selection
 - [ ] logging to stderr
@@ -12,3 +12,8 @@ version 0.1:
 - [ ] code cleanup
 - [ ] README with usage
 - [ ] Github release
+
+## version 0.2
+
+- [ ] plugin interface definition
+- [ ] zfs plugin
