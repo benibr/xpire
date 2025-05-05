@@ -10,3 +10,5 @@ version 0.1:
 - [ ] strict concept of error handling
 - [ ] beautify parameter
 - [ ] code cleanup
+- [ ] README with usage
+- [ ] Github release
