@@ -4,7 +4,7 @@
 
 - [x] rename to xpire
 - [x] btrfs: prune with find all subvolumes
-- [ ] btrfs: warn if not a subvolume or snapshot
+- [x] btrfs: warn if not a subvolume or snapshot
 - [ ] parameter: -p plugin selection
 - [ ] logging to stderr
 - [ ] strict concept of error handling
