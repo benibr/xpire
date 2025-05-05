@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+//	"fmt"
 	"time"
 
 	"github.com/dennwc/btrfs"
@@ -14,8 +14,7 @@ import (
 func SetExpireDate(t time.Time, path string) (bool, error) {
 	//FIXME: check XATTR_SUPPORTED first
 	//FIXME: we need to find the root btrfs subvolume first
-	b, _ := btrfs.Open(path, false)
-	fmt.Println(b.SubvolList())
+	btrfs.Open(path, false)
 	if err := xattr.Set(path, "user.expire", []byte(t.Format(time.DateTime))); err != nil {
 		panic(err)
 	}
