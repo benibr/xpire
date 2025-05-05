@@ -5,7 +5,7 @@ GOCLEAN = $(GOCMD) clean
 
 # Define the main Go application
 MAIN_SRC = main.go
-MAIN_OUT = fsexpire
+MAIN_OUT = xpire
 
 # Define the plugin directory and plugin output
 PLUGIN_DIR = filesystems
