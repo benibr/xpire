@@ -17,3 +17,4 @@
 
 - [ ] plugin interface definition
 - [ ] zfs plugin
+- [ ] `--loglevel`
