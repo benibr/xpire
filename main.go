@@ -38,6 +38,7 @@ func getFsType(path string) (string, error) {
 		return "", err
 	}
 
+	// from: https://github.com/torvalds/linux/blob/master/include/uapi/linux/magic.h
 	// File system types in Linux (incomplete list)
 	supportedFilesystems := map[int64]string{
 		0x9123683E: "btrfs",
