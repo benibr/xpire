@@ -46,7 +46,7 @@ func getFsType(path string) (string, error) {
 	if !ok {
 		return "", errors.New(fmt.Sprintf("unknown filesystem type: %x", stat.Type))
 	}
-	fmt.Println("detected filesystem:", fsType)
+	log.Info("detected filesystem: ", fsType)
 	return fsType, nil
 }
 
@@ -76,7 +76,7 @@ func main() {
 	if args.Plugin == "" {
 		pluginName, err = getFsType(args.Path)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			os.Exit(RC_ERR_FS)
 		}
 	} else {
@@ -91,7 +91,7 @@ func main() {
 		}
 		parsedTime, err = time.Parse(time.DateTime, args.SetExpireDate)
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err)
 			os.Exit(RC_ERR_ARGS)
 		}
 		plugin := loadPlugin(pluginName)
@@ -103,11 +103,11 @@ func main() {
 		if !ok {
 			panic("unexpected type from module symbol")
 		}
-		fmt.Printf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
+		log.Info("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
 		err = setFunc(parsedTime, args.Path)
 		if err != nil {
-			fmt.Println("Error: Cannot set expiry date")
-			fmt.Println(err)
+			log.Error("Error: Cannot set expiry date")
+			log.Error(err)
 			os.Exit(RC_ERR_FS)
 		}
 		os.Exit(RC_OK)
@@ -121,7 +121,7 @@ func main() {
 		}
 		pruneFunc, ok := pruneSym.(func(string) ([]string, error))
 		if !ok {
-			fmt.Println(ok)
+			log.Error(ok)
 			panic("unexpected type from module symbol")
 		}
 		pruneFunc(args.Path)
