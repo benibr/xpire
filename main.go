@@ -114,7 +114,7 @@ func main() {
 
 	// prune
 	} else if args.Prune {
-		plugin := loadPlugin(args.Path)
+		plugin := loadPlugin(pluginName)
 		pruneSym, err := plugin.Lookup("PruneExpiredSnapshots")
 		if err != nil {
 			panic(err)
