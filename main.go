@@ -17,6 +17,7 @@ const RC_ERR_FS = 6
 
 var args struct {
 	SetExpireDate string `arg:"-s,--set-expire-date"`
+	Plugin        string `arg:"-p,--plugin"`
 	Path          string
 	Prune         bool
 }
@@ -48,17 +49,12 @@ func getFsType(path string) (string, error) {
 	if !ok {
 		return "", errors.New(fmt.Sprintf("unknown filesystem type: %x", stat.Type))
 	}
+	fmt.Println("detected filesystem:", fsType)
 	return fsType, nil
 }
 
-func loadPlugin(path string) plugin.Plugin {
-	fsType, err := getFsType(path)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(RC_ERR_FS)
-	}
-	fmt.Println("detected filesystem:", fsType)
-	pluginPath := fmt.Sprintf("./filesystems/%s.so", fsType)
+func loadPlugin(pluginName string) plugin.Plugin {
+	pluginPath := fmt.Sprintf("./filesystems/%s.so", pluginName)
 	plugin, err := plugin.Open(pluginPath)
 	if err != nil {
 		panic(err)
@@ -67,6 +63,7 @@ func loadPlugin(path string) plugin.Plugin {
 }
 
 func main() {
+	var pluginName string = ""
 
 	arg.MustParse(&args)
 
@@ -82,7 +79,16 @@ func main() {
 			fmt.Println(err)
 			os.Exit(RC_ERR_ARGS)
 		}
-		plugin := loadPlugin(args.Path)
+		if args.Plugin == "" {
+			pluginName, err = getFsType(args.Path)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(RC_ERR_FS)
+			}
+		} else {
+			pluginName = args.Plugin
+		}
+		plugin := loadPlugin(pluginName)
 		setSym, err := plugin.Lookup("SetExpireDate")
 		if err != nil {
 			panic(err)
@@ -98,7 +104,6 @@ func main() {
 			fmt.Println(err)
 			os.Exit(RC_ERR_FS)
 		}
-
 		os.Exit(RC_OK)
 
 	// prune
