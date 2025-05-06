@@ -6,7 +6,7 @@
 - [x] btrfs: prune with find all subvolumes
 - [x] btrfs: warn if not a subvolume or snapshot
 - [x] parameter: -p plugin selection
-- [ ] logging to stderr
+- [x] logging to stderr
 - [ ] strict concept of error handling
 - [ ] beautify parameter
 - [ ] code cleanup

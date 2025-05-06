@@ -11,5 +11,6 @@ require (
 require (
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/dennwc/ioctl v1.0.0 // indirect
-	golang.org/x/sys v0.0.0-20220408201424-a24fb2fb8a0f // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 )

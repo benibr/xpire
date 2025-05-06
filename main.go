@@ -9,11 +9,14 @@ import (
 	"time"
 
 	"github.com/alexflint/go-arg"
+	"github.com/sirupsen/logrus"
 )
 
 const RC_OK = 0
 const RC_ERR_ARGS = 5
 const RC_ERR_FS = 6
+
+var log = logrus.New()
 
 var args struct {
 	SetExpireDate string `arg:"-s,--set-expire-date"`
@@ -22,13 +25,9 @@ var args struct {
 	Prune         bool
 }
 
-func printError(msg string) {
-	fmt.Println("Error:", msg)
-}
-
 func checkPath() {
 	if args.Path == "" {
-		printError("--path missing")
+		log.Error("--path missing")
 		os.Exit(RC_ERR_ARGS)
 	}
 }
@@ -38,13 +37,11 @@ func getFsType(path string) (string, error) {
 	if err := syscall.Statfs(path, &stat); err != nil {
 		return "", err
 	}
-
 	// from: https://github.com/torvalds/linux/blob/master/include/uapi/linux/magic.h
 	// File system types in Linux (incomplete list)
 	supportedFilesystems := map[int64]string{
 		0x9123683E: "btrfs",
 	}
-
 	fsType, ok := supportedFilesystems[stat.Type]
 	if !ok {
 		return "", errors.New(fmt.Sprintf("unknown filesystem type: %x", stat.Type))
@@ -64,29 +61,38 @@ func loadPlugin(pluginName string) plugin.Plugin {
 
 func main() {
 	var pluginName string = ""
+	var err error
+	var parsedTime time.Time
+
+	log = logrus.New()
+	log.SetLevel(logrus.InfoLevel)
+	log.SetFormatter(&logrus.TextFormatter{
+		DisableTimestamp:  true,
+	})
 
 	arg.MustParse(&args)
 
+	checkPath()
+	if args.Plugin == "" {
+		pluginName, err = getFsType(args.Path)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(RC_ERR_FS)
+		}
+	} else {
+		pluginName = args.Plugin
+	}
+
 	// set expiration date
 	if args.SetExpireDate != "" {
-		checkPath()
 		if args.Prune {
-			printError("Cannot use --prune with --setexpiredate")
+			log.Error("Cannot use --prune with --setexpiredate")
 			os.Exit(RC_ERR_ARGS)
 		}
-		parsedTime, err := time.Parse(time.DateTime, args.SetExpireDate)
+		parsedTime, err = time.Parse(time.DateTime, args.SetExpireDate)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(RC_ERR_ARGS)
-		}
-		if args.Plugin == "" {
-			pluginName, err = getFsType(args.Path)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(RC_ERR_FS)
-			}
-		} else {
-			pluginName = args.Plugin
 		}
 		plugin := loadPlugin(pluginName)
 		setSym, err := plugin.Lookup("SetExpireDate")
@@ -108,7 +114,6 @@ func main() {
 
 	// prune
 	} else if args.Prune {
-		checkPath()
 		plugin := loadPlugin(args.Path)
 		pruneSym, err := plugin.Lookup("PruneExpiredSnapshots")
 		if err != nil {
@@ -122,6 +127,6 @@ func main() {
 		pruneFunc(args.Path)
 
 	} else {
-		printError("you have to specicy either --set-expire-date or --prune")
+		log.Error("you have to specicy either --set-expire-date or --prune")
 	}
 }
