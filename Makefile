@@ -2,6 +2,7 @@
 GOCMD = go
 GOBUILD = $(GOCMD) build
 GOCLEAN = $(GOCMD) clean
+GOTEST  = $(GOCMD) test
 
 # Define the main Go application
 MAIN_SRC = main.go
@@ -30,3 +31,18 @@ clean:
 ## Build the main Go application
 build:
 	$(GOBUILD) -o $(MAIN_OUT) $(MAIN_SRC)
+
+test: test-setup test-all test-teardown
+
+test-setup:
+	@echo "setup testing environment"
+	@cd tests \
+		&& ./setup.sh
+
+test-all:
+		$(GOTEST) || $(MAKE) test-teardown
+
+test-teardown:
+	@echo "teardown testing environment"
+		@cd tests \
+			&& ./teardown.sh
