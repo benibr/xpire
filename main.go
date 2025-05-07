@@ -21,7 +21,7 @@ const RC_ERR_PLUGIN = 7
 var log = logrus.New()
 
 var args struct {
-	SetExpireDate string `arg:"-s,--set-expire-date"`
+	SetExpireDate string `arg:"-s,--set"`
 	Plugin        string `arg:"-p,--plugin"`
 	Path          string
 	Prune         bool
