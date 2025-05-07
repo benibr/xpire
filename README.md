@@ -18,3 +18,9 @@
 - [ ] plugin interface definition
 - [ ] zfs plugin
 - [ ] `--loglevel`
+- [ ] move functions out of main.go to seperate file
+
+## version 0.3
+
+- [ ] rename parameters to --set and better words
+- [ ] add --list option
