@@ -13,8 +13,10 @@ import (
 )
 
 const RC_OK = 0
+const RC_ERR = 1
 const RC_ERR_ARGS = 5
 const RC_ERR_FS = 6
+const RC_ERR_PLUGIN = 7
 
 var log = logrus.New()
 
@@ -23,6 +25,20 @@ var args struct {
 	Plugin        string `arg:"-p,--plugin"`
 	Path          string
 	Prune         bool
+}
+
+func errorHandler(err error, rc int, msg string) {
+	if err != nil {
+		log.Error(err)
+		os.Exit(rc)
+	}
+}
+
+func okHandler(ok bool, rc int, msg string) {
+	if !ok {
+		log.Error(msg)
+		os.Exit(rc)
+	}
 }
 
 func checkPath() {
@@ -75,10 +91,7 @@ func main() {
 	checkPath()
 	if args.Plugin == "" {
 		pluginName, err = getFsType(args.Path)
-		if err != nil {
-			log.Error(err)
-			os.Exit(RC_ERR_FS)
-		}
+		errorHandler(err, RC_ERR_FS, "Failed to detect filesystem type, use -p to specify a plugin")
 	} else {
 		pluginName = args.Plugin
 	}
@@ -90,43 +103,28 @@ func main() {
 			os.Exit(RC_ERR_ARGS)
 		}
 		parsedTime, err = time.Parse(time.DateTime, args.SetExpireDate)
-		if err != nil {
-			log.Error(err)
-			os.Exit(RC_ERR_ARGS)
-		}
+		errorHandler(err, RC_ERR_ARGS, "Cannot parse specified date")
 		plugin := loadPlugin(pluginName)
 		setSym, err := plugin.Lookup("SetExpireDate")
-		if err != nil {
-			panic(err)
-		}
+		errorHandler(err, RC_ERR_PLUGIN, "Cannot find function 'SetExpireDate' in plugin")
 		setFunc, ok := setSym.(func(time.Time, string) (error))
-		if !ok {
-			panic("unexpected type from module symbol")
-		}
-		log.Info("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime))
+		okHandler(ok, RC_ERR_PLUGIN, "unexpected type from module symbol")
+		log.Info(fmt.Sprintf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime)))
 		err = setFunc(parsedTime, args.Path)
-		if err != nil {
-			log.Error("Error: Cannot set expiry date")
-			log.Error(err)
-			os.Exit(RC_ERR_FS)
-		}
+		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
 		os.Exit(RC_OK)
 
 	// prune
 	} else if args.Prune {
 		plugin := loadPlugin(pluginName)
 		pruneSym, err := plugin.Lookup("PruneExpiredSnapshots")
-		if err != nil {
-			panic(err)
-		}
+		errorHandler(err, RC_ERR_PLUGIN, "cann find function 'PruneExpiredSnapshots' in plugin")
 		pruneFunc, ok := pruneSym.(func(string) ([]string, error))
-		if !ok {
-			log.Error(ok)
-			panic("unexpected type from module symbol")
-		}
+		okHandler(ok, RC_ERR_PLUGIN, "unexpected type from module symbol")
 		pruneFunc(args.Path)
 
 	} else {
 		log.Error("you have to specicy either --set-expire-date or --prune")
+		os.Exit(RC_ERR_ARGS)
 	}
 }
