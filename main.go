@@ -41,7 +41,7 @@ func okHandler(ok bool, rc int, msg string) {
 	}
 }
 
-func checkPath() {
+func checkPathArg() {
 	if args.Path == "" {
 		log.Error("--path missing")
 		os.Exit(RC_ERR_ARGS)
@@ -88,7 +88,7 @@ func main() {
 
 	arg.MustParse(&args)
 
-	checkPath()
+	checkPathArg()
 	if args.Plugin == "" {
 		pluginName, err = getFsType(args.Path)
 		errorHandler(err, RC_ERR_FS, "Failed to detect filesystem type, use -p to specify a plugin")
