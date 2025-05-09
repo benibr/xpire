@@ -30,13 +30,20 @@ func PruneExpiredSnapshots(path string) ([]string, error) {
 	fmt.Printf("pruning all expired snapshots in '%s'\n", path)
 	b, _ := btrfs.Open(path, false)
 	subvols, _ := b.ListSubvolumes(func(svi btrfs.SubvolInfo) bool {
-        return true // no filter, return all subvolumes
-    })
-  var expiredSubs []btrfs.SubvolInfo
+				if svi.RootID == 5 {
+					fmt.Println("Refusing to work on btrfs <FS_TREE>")
+					return false
+				}
+				return true
+		})
+	var expiredSubs []btrfs.SubvolInfo
 	for _, sv := range subvols {
 		fullPath := filepath.Join(path, sv.Path)
 		xattr, err := xattr.Get(fullPath, "user.expire")
-		if err != nil { continue }
+		if err != nil {
+			//log.Debug(Sprintf("PruneExpiredSnapshots: %w", err)
+			continue
+		}
 		t, err := time.Parse(TimeFormat, string(xattr))
 		if err != nil {
 			panic(err)
