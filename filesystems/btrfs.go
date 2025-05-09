@@ -37,7 +37,7 @@ func SetExpireDate(t time.Time, path string) (error) {
 }
 
 func PruneExpiredSnapshots(path string) ([]string, error) {
-	log.Info(fmt.Sprintf("pruning all expired snapshots in '%s'\n", path))
+	log.Info(fmt.Sprintf("pruning all expired snapshots in '%s'", path))
 	b, _ := btrfs.Open(path, false)
 	subvols, _ := b.ListSubvolumes(func(svi btrfs.SubvolInfo) bool {
 				if svi.RootID == 5 {
