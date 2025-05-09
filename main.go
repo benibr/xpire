@@ -99,6 +99,7 @@ func main() {
 		pluginName = args.Plugin
 	}
 	plugin := loadPlugin(pluginName)
+	// init logging in plugin
 	initLoggerSym, err := plugin.Lookup("InitLogger")
 	errorHandler(err, RC_ERR_PLUGIN, "Cannot find function 'InitLogger' in plugin")
 	initLoggerFunc, ok := initLoggerSym.(func(*logrus.Logger) (error))
@@ -121,7 +122,6 @@ func main() {
 		log.Info(fmt.Sprintf("setting expiration date on snapshot '%s' to %s", args.Path, parsedTime.Format(time.DateTime)))
 		err = setFunc(parsedTime, args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
-		os.Exit(RC_OK)
 
 	// prune
 	} else if args.Prune {
@@ -135,4 +135,5 @@ func main() {
 		log.Error("you have to specicy either --set-expire-date or --prune")
 		os.Exit(RC_ERR_ARGS)
 	}
+	os.Exit(RC_OK)
 }
