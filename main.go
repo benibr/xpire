@@ -84,6 +84,7 @@ func main() {
 	log.SetLevel(logrus.InfoLevel)
 	log.SetFormatter(&logrus.TextFormatter{
 		DisableTimestamp:  true,
+		FullTimestamp: false,
 	})
 
 	arg.MustParse(&args)
@@ -109,7 +110,7 @@ func main() {
 		errorHandler(err, RC_ERR_PLUGIN, "Cannot find function 'SetExpireDate' in plugin")
 		setFunc, ok := setSym.(func(time.Time, string) (error))
 		okHandler(ok, RC_ERR_PLUGIN, "unexpected type from module symbol")
-		log.Info(fmt.Sprintf("setting expiration date on snapshot '%s' to %s\n", args.Path, parsedTime.Format(time.DateTime)))
+		log.Info(fmt.Sprintf("setting expiration date on snapshot '%s' to %s", args.Path, parsedTime.Format(time.DateTime)))
 		err = setFunc(parsedTime, args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
 		os.Exit(RC_OK)
