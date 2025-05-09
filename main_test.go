@@ -1,33 +1,39 @@
 package main
 
 import (
-    "os/exec"
-    "testing"
+		"os/exec"
+		"testing"
 )
 
 func TestMain(t *testing.T) {
-    tests := []struct {
-        args    []string
-        want    string
-    }{
-        {[]string{"--path", "./", "--prune"}, "pruning all expired snapshots in './'"},
-        //{[]string{"--path", "./", "-s", "foobar"}, "parsing time \"foobar\" as \"2006-01-02 15:04:05\": cannot parse \"foobar\" as \"2006\" \nexit status 5\n"},
-        {[]string{"--path", "./", "-s", "2022-06-30 15:38:13"}, "setting expiration date on snapshot './' to 2022-06-30 15:38:13"},
-    }
+		tests := []struct {
+				args		[]string
+				want		string
+		}{
+				// prune, non expired
+				{[]string{"--path", "./tests/mnt/btrfs", "--prune"},
+				 "level=info msg=\"detected filesystem: btrfs\"\npruning all expired snapshots in './tests/mnt/btrfs'\n"},
+				// set expire date
+				 {[]string{"--path", "./tests/mnt/btrfs/subvolume", "--set", "2002-01-01 15:00:00"},
+				 "level=info msg=\"detected filesystem: btrfs\"\nlevel=info msg=\"setting expiration date on snapshot './tests/mnt/btrfs/subvolume' to 2002-01-01 15:00:00\"\n"},
+				// prune, one expired
+				//{[]string{"--path", "./tests/mnt/btrfs", "--prune"},
+				// "level=info msg=\"detected filesystem: btrfs\"\npruning all expired snapshots in './tests/mnt/btrfs'\n"},
+		}
 
-    for _, tt := range tests {
-        t.Run("Testing with args "+tt.args[0], func(t *testing.T) {
-            cmd := exec.Command("go", "run", "main.go")
-            cmd.Args = append(cmd.Args, tt.args...)
+		for _, tt := range tests {
+				t.Run("Testing with args "+tt.args[0], func(t *testing.T) {
+						cmd := exec.Command("go", "run", "main.go")
+						cmd.Args = append(cmd.Args, tt.args...)
 
-            output, err := cmd.CombinedOutput()
-            if got := string(output); got != tt.want {
-                t.Errorf("\n got output: '%v'\nwant output: '%v'", got, tt.want)
-            }
-            if err != nil {
-                t.Fatalf("Failed to run command: %v", err)
-            }
+						output, err := cmd.CombinedOutput()
+						if got := string(output); got != tt.want {
+								t.Errorf("\n got output: '%v'\nwant output: '%v'", got, tt.want)
+						}
+						if err != nil {
+								t.Fatalf("Failed to run command: %v", err)
+						}
 
-        })
-    }
+				})
+		}
 }
