@@ -99,6 +99,12 @@ func main() {
 		pluginName = args.Plugin
 	}
 	plugin := loadPlugin(pluginName)
+	initLoggerSym, err := plugin.Lookup("InitLogger")
+	errorHandler(err, RC_ERR_PLUGIN, "Cannot find function 'InitLogger' in plugin")
+	initLoggerFunc, ok := initLoggerSym.(func(*logrus.Logger) (error))
+	okHandler(ok, RC_ERR_PLUGIN, "unexpected type from module symbol")
+	err = initLoggerFunc(log)
+	errorHandler(err, RC_ERR_PLUGIN, "Cannot initialize logger in plugin")
 
 	// set expiration date
 	if args.SetExpireDate != "" {

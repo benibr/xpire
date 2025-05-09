@@ -7,12 +7,22 @@ import (
 	"path/filepath"
 	"github.com/dennwc/btrfs"
 	"github.com/pkg/xattr"
+	"github.com/sirupsen/logrus"
 )
 
 const TimeFormat = time.DateTime
+
+var log *logrus.Logger
+
 // internal functions
 
 // mandatory functions called by fsexpire
+
+func InitLogger(l *logrus.Logger) error {
+	log = l
+	return nil
+}
+
 func SetExpireDate(t time.Time, path string) (error) {
 	//FIXME: check XATTR_SUPPORTED first
 	isSubVolume, _ := btrfs.IsSubVolume(path)
@@ -27,7 +37,7 @@ func SetExpireDate(t time.Time, path string) (error) {
 }
 
 func PruneExpiredSnapshots(path string) ([]string, error) {
-	fmt.Printf("pruning all expired snapshots in '%s'\n", path)
+	log.Info(fmt.Sprintf("pruning all expired snapshots in '%s'\n", path))
 	b, _ := btrfs.Open(path, false)
 	subvols, _ := b.ListSubvolumes(func(svi btrfs.SubvolInfo) bool {
 				if svi.RootID == 5 {
@@ -41,7 +51,7 @@ func PruneExpiredSnapshots(path string) ([]string, error) {
 		fullPath := filepath.Join(path, sv.Path)
 		xattr, err := xattr.Get(fullPath, "user.expire")
 		if err != nil {
-			//log.Debug(Sprintf("PruneExpiredSnapshots: %w", err)
+			log.Error(fmt.Sprintf("PruneExpiredSnapshots: %w", err))
 			continue
 		}
 		t, err := time.Parse(TimeFormat, string(xattr))
