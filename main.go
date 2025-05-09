@@ -87,15 +87,18 @@ func main() {
 		FullTimestamp: false,
 	})
 
+	// args
 	arg.MustParse(&args)
-
 	checkPathArg()
+
+	// plugin
 	if args.Plugin == "" {
 		pluginName, err = getFsType(args.Path)
 		errorHandler(err, RC_ERR_FS, "Failed to detect filesystem type, use -p to specify a plugin")
 	} else {
 		pluginName = args.Plugin
 	}
+	plugin := loadPlugin(pluginName)
 
 	// set expiration date
 	if args.SetExpireDate != "" {
@@ -105,7 +108,6 @@ func main() {
 		}
 		parsedTime, err = time.Parse(time.DateTime, args.SetExpireDate)
 		errorHandler(err, RC_ERR_ARGS, "Cannot parse specified date")
-		plugin := loadPlugin(pluginName)
 		setSym, err := plugin.Lookup("SetExpireDate")
 		errorHandler(err, RC_ERR_PLUGIN, "Cannot find function 'SetExpireDate' in plugin")
 		setFunc, ok := setSym.(func(time.Time, string) (error))
@@ -117,7 +119,6 @@ func main() {
 
 	// prune
 	} else if args.Prune {
-		plugin := loadPlugin(pluginName)
 		pruneSym, err := plugin.Lookup("PruneExpiredSnapshots")
 		errorHandler(err, RC_ERR_PLUGIN, "cann find function 'PruneExpiredSnapshots' in plugin")
 		pruneFunc, ok := pruneSym.(func(string) ([]string, error))
