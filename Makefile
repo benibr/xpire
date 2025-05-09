@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 # Define the Go compiler
 GOCMD = go
 GOBUILD = $(GOCMD) build
@@ -37,10 +38,14 @@ test: test-setup test-all test-teardown
 test-setup:
 	@echo "setup testing environment"
 	@cd tests \
-		&& ./setup.sh
+		&& ./setup.sh > /dev/null
 
 test-all:
-		$(GOTEST) || $(MAKE) test-teardown
+	@echo "running tests"
+		@$(GOTEST) || { \
+			$(MAKE) test-teardown; \
+			exit 1; \
+			}
 
 test-teardown:
 	@echo "teardown testing environment"
