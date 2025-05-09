@@ -8,19 +8,20 @@
 - [x] parameter: -p plugin selection
 - [x] logging to stderr
 - [x] concept of error handling
-- [ ] beautify parameter
+- [x] beautify parameter
 - [ ] code cleanup
 - [ ] README with usage
 - [ ] Github release
 
 ## version 0.2
 
-- [ ] plugin interface definition
-- [ ] zfs plugin
+- [ ] check for root
 - [ ] `--loglevel`
 - [ ] move functions out of main.go to seperate file
+- [ ] plugin interface definition
+- [ ] zfs plugin
 
 ## version 0.3
 
-- [ ] rename parameters to --set and better words
 - [ ] add --list option
+- [ ] add --unset option
