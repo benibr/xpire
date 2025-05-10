@@ -64,9 +64,9 @@ func getFsType(path string) (string, error) {
 	}
 	fsType, ok := supportedFilesystems[stat.Type]
 	if !ok {
-		return "", errors.New(fmt.Sprintf("unknown filesystem type: %x", stat.Type))
+		return "", errors.New(fmt.Sprintf("Filesystem not supported: %x.\nTry specifying the correct plugin explicitly with -p", stat.Type))
 	}
-	log.Info("detected filesystem: ", fsType)
+	log.Info("Detected filesystem: ", fsType)
 	return fsType, nil
 }
 // loadPlugin opens a filesystem plugin by name
@@ -98,16 +98,16 @@ func main() {
 	// plugin
 	if args.Plugin == "" {
 		pluginName, err = getFsType(args.Path)
-		errorHandler(err, RC_ERR_FS, "Failed to detect filesystem type, use -p to specify a plugin")
+		errorHandler(err, RC_ERR_FS, "Unable to autoselect plugin by detected filesystem:")
 	} else {
 		pluginName = args.Plugin
 	}
 	plugin := loadPlugin(pluginName)
 	// init logging in plugin
 	initLoggerSym, err := plugin.Lookup("InitLogger")
-	errorHandler(err, RC_ERR_PLUGIN, "Cannot find function 'InitLogger' in plugin")
+	errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Cannot find function 'InitLogger' in plugin '%s'", pluginName))
 	initLoggerFunc, ok := initLoggerSym.(func(*logrus.Logger) (error))
-	okHandler(ok, RC_ERR_PLUGIN, "unexpected type from module symbol")
+	okHandler(ok, RC_ERR_PLUGIN, fmt.Sprintf("Unexpected type from module symbol for function 'InitLogger' in plugin '%s'", pluginName))
 	err = initLoggerFunc(log)
 	errorHandler(err, RC_ERR_PLUGIN, "Cannot initialize logger in plugin")
 
