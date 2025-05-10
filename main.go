@@ -104,8 +104,11 @@ func main() {
 	} else {
 		pluginName = args.Plugin
 	}
+	log.Debug(fmt.Sprintf("Loading plugin '%s'", pluginName))
 	plugin := loadPlugin(pluginName)
 	// init logging in plugin
+	log.Debug("Initializing logger in plugin")
+	//FIXME: plugin lookup and function call should be put into a function for less repetition
 	initLoggerSym, err := plugin.Lookup("InitLogger")
 	errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Cannot find function 'InitLogger' in plugin '%s'", pluginName))
 	initLoggerFunc, ok := initLoggerSym.(func(*logrus.Logger) (error))
