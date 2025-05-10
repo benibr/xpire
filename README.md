@@ -25,3 +25,18 @@
 
 - [ ] add --list option
 - [ ] add --unset option
+
+## version 0.4
+
+- [ ] posix plugin
+
+## version 0.9
+
+- [ ] Containerfile
+- [ ] AUR
+- [ ] .rpm
+- [ ] .deb
+
+## version 1.1
+
+- [ ] database plugin
