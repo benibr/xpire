@@ -80,10 +80,12 @@ func loadPlugin(pluginName string) plugin.Plugin {
 }
 
 func main() {
+	// vars
 	var pluginName string = ""
 	var err error
 	var parsedTime time.Time
 
+		// logging
 	log = logrus.New()
 	log.SetLevel(logrus.InfoLevel)
 	log.SetFormatter(&logrus.TextFormatter{
@@ -111,7 +113,7 @@ func main() {
 	err = initLoggerFunc(log)
 	errorHandler(err, RC_ERR_PLUGIN, "Cannot initialize logger in plugin")
 
-	// set expiration date
+	// --set expiration date
 	if args.SetExpireDate != "" {
 		if args.Prune {
 			log.Error("Cannot use --prune with --setexpiredate")
@@ -127,7 +129,7 @@ func main() {
 		err = setFunc(parsedTime, args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
 
-	// prune
+	// --prune expired data
 	} else if args.Prune {
 		pruneSym, err := plugin.Lookup("PruneExpiredSnapshots")
 		errorHandler(err, RC_ERR_PLUGIN, "cann find function 'PruneExpiredSnapshots' in plugin")
@@ -135,8 +137,9 @@ func main() {
 		okHandler(ok, RC_ERR_PLUGIN, "unexpected type from module symbol")
 		pruneFunc(args.Path)
 
+	// error in args
 	} else {
-		log.Error("you have to specicy either --set-expire-date or --prune")
+		log.Error("you have to specicy either --set or --prune")
 		os.Exit(RC_ERR_ARGS)
 	}
 	os.Exit(RC_OK)
