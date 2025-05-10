@@ -12,14 +12,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// global const
 const RC_OK = 0
 const RC_ERR = 1
 const RC_ERR_ARGS = 5
 const RC_ERR_FS = 6
 const RC_ERR_PLUGIN = 7
 
+// global vars
 var log = logrus.New()
 
+// functions
 var args struct {
 	SetExpireDate string `arg:"-s,--set"`
 	Plugin        string `arg:"-p,--plugin"`
@@ -48,13 +51,14 @@ func checkPathArg() {
 	}
 }
 
+// getFsType detects the filesystem of a given path
+// via a list of supported ones
 func getFsType(path string) (string, error) {
 	var stat syscall.Statfs_t
 	if err := syscall.Statfs(path, &stat); err != nil {
 		return "", err
 	}
 	// from: https://github.com/torvalds/linux/blob/master/include/uapi/linux/magic.h
-	// File system types in Linux (incomplete list)
 	supportedFilesystems := map[int64]string{
 		0x9123683E: "btrfs",
 	}
@@ -65,7 +69,7 @@ func getFsType(path string) (string, error) {
 	log.Info("detected filesystem: ", fsType)
 	return fsType, nil
 }
-
+// loadPlugin opens a filesystem plugin by name
 func loadPlugin(pluginName string) plugin.Plugin {
 	pluginPath := fmt.Sprintf("./filesystems/%s.so", pluginName)
 	plugin, err := plugin.Open(pluginPath)
