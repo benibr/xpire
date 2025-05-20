@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"errors"
-	"time"
-	"path/filepath"
+	"fmt"
 	"github.com/dennwc/btrfs"
 	"github.com/pkg/xattr"
 	"github.com/sirupsen/logrus"
+	"path/filepath"
+	"time"
 )
 
 const TimeFormat = time.DateTime
@@ -23,7 +23,7 @@ func InitLogger(l *logrus.Logger) error {
 	return nil
 }
 
-func SetExpireDate(t time.Time, path string) (error) {
+func SetExpireDate(t time.Time, path string) error {
 	//FIXME: check XATTR_SUPPORTED first
 	isSubVolume, _ := btrfs.IsSubVolume(path)
 	if isSubVolume == false {
@@ -40,12 +40,12 @@ func PruneExpiredSnapshots(path string) ([]string, error) {
 	log.Info(fmt.Sprintf("pruning all expired snapshots in '%s'", path))
 	b, _ := btrfs.Open(path, false)
 	subvols, _ := b.ListSubvolumes(func(svi btrfs.SubvolInfo) bool {
-				if svi.RootID == 5 {
-					log.Debug("Refusing to work on btrfs <FS_TREE>")
-					return false
-				}
-				return true
-		})
+		if svi.RootID == 5 {
+			log.Debug("Refusing to work on btrfs <FS_TREE>")
+			return false
+		}
+		return true
+	})
 	var expiredSubs []btrfs.SubvolInfo
 	for _, sv := range subvols {
 		fullPath := filepath.Join(path, sv.Path)
