@@ -14,7 +14,7 @@
 ### version 0.2
 
 - [ ] check for root
-- [ ] `--loglevel`
+- [x] `--loglevel`
 - [ ] move functions out of main.go to seperate file
 - [ ] plugin interface definition
 - [ ] zfs plugin

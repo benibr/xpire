@@ -28,6 +28,7 @@ var args struct {
 	Plugin        string `arg:"-p,--plugin"`
 	Path          string
 	Prune         bool
+	Loglevel      string `arg:"-l,--loglevel"`
 }
 
 func errorHandler(err error, rc int, msg string) {
@@ -104,6 +105,11 @@ func main() {
 	// args
 	arg.MustParse(&args)
 	checkPathArg()
+	if args.Loglevel != "" {
+		l, err := logrus.ParseLevel(args.Loglevel)
+		errorHandler(err, RC_ERR_ARGS, "Unknown Loglevel, see https://pkg.go.dev/github.com/sirupsen/logrus#Level")
+		log.SetLevel(l)
+	}
 
 	// plugin
 	if args.Plugin == "" {
