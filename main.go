@@ -81,8 +81,9 @@ func loadPlugin(pluginName string) plugin.Plugin {
 }
 
 func getPluginSymbol(p *plugin.Plugin, fName string) plugin.Symbol {
+	log.Debug(fmt.Sprintf("Trying to find '%s' in plugin", fName))
 	sym, err := p.Lookup(fName)
-	errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Cannot find function '%s' in plugin '%s'", fName, p))
+	errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Cannot find function '%s' in plugin", fName))
 	return sym
 }
 

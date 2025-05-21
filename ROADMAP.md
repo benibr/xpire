@@ -23,6 +23,7 @@
 
 - [ ] add --list option
 - [ ] add --unset option
+- [ ] more tests
 
 ### version 0.4
 
