@@ -7,7 +7,7 @@
 - [x] logging to stderr
 - [x] concept of error handling
 - [x] beautify parameter
-- [ ] code cleanup, plugin function lookup
+- [x] code cleanup, plugin function lookup
 - [x] README with usage
 - [ ] Github release
 

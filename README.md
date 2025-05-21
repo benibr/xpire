@@ -18,15 +18,21 @@ and pruneing all expired files.
 Be arware that you might need root priviledges.
 
 ```
-# xpire --path /path/to/old/data --set "2023-05-01 15:00:00"
+$ xpire --path /path/to/old/data --set "2023-05-01 15:00:00"
 INFO Detected filesystem: btrfs
 INFO setting expiration date on snapshot '/path/to/old/data' to 2023-05-01 15:00:00
+```
 
-# xpire --path /path --prune
+```
+$ xpire --path /path --prune
 INFO Detected filesystem: btrfs
 INFO pruning all expired snapshots in 'mnt/btrfs'
 INFO ↳ '/path/to/old/data' expired since 2023-05-01 15:00:00
 ```
+
+## Building from source
+
+Just run `make` and then the binary is available under `./xpire`.
 
 ## Supported filesystems
 
