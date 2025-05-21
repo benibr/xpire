@@ -72,9 +72,11 @@ Do not use for production data.
 ### version 0.4
 
 - [ ] posix plugin
+- [ ] Make install
 
 ### version 0.9
 
+- Allow plugin path to be $CWD or /usr
 - [ ] Containerfile
 - [ ] AUR
 - [ ] .rpm
