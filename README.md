@@ -17,13 +17,13 @@ Currently two main functionalies are provided, setting a expire date
 and pruneing all expired files.
 Be arware that you might need root priviledges.
 
-```
+```sh
 $ xpire --path /path/to/old/data --set "2023-05-01 15:00:00"
 INFO Detected filesystem: btrfs
 INFO setting expiration date on snapshot '/path/to/old/data' to 2023-05-01 15:00:00
 ```
 
-```
+```sh
 $ xpire --path /path --prune
 INFO Detected filesystem: btrfs
 INFO pruning all expired snapshots in 'mnt/btrfs'

@@ -9,7 +9,7 @@
 - [x] beautify parameter
 - [x] code cleanup, plugin function lookup
 - [x] README with usage
-- [ ] Github release
+- [x] Github release
 
 ### version 0.2
 
