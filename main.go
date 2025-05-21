@@ -124,23 +124,23 @@ func main() {
 	// --set expiration date
 	if args.SetExpireDate != "" {
 		if args.Prune {
-			log.Error("Cannot use --prune with --setexpiredate")
+			log.Error("Cannot use --prune with --set")
 			os.Exit(RC_ERR_ARGS)
 		}
 		parsedTime, err = time.Parse(time.DateTime, args.SetExpireDate)
 		errorHandler(err, RC_ERR_ARGS, "Cannot parse specified date")
 		setSym := getPluginSymbol(&plugin, "SetExpireDate")
 		setFunc, ok := setSym.(func(time.Time, string) error)
-		okHandler(ok, RC_ERR_PLUGIN, "unexpected type from module symbol")
+		okHandler(ok, RC_ERR_PLUGIN, "Unexpected type from plugin function symbol")
 		log.Info(fmt.Sprintf("setting expiration date on snapshot '%s' to %s", args.Path, parsedTime.Format(time.DateTime)))
 		err = setFunc(parsedTime, args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
 
 		// --prune expired data
 	} else if args.Prune {
-		pruneSym := getPluginSymbol(&plugin, "PruneExpiredSnapshots")
+		pruneSym := getPluginSymbol(&plugin, "PruneExpired")
 		pruneFunc, ok := pruneSym.(func(string) ([]string, error))
-		okHandler(ok, RC_ERR_PLUGIN, "unexpected type from module symbol")
+		okHandler(ok, RC_ERR_PLUGIN, "Unexpected type from plugin function symbol")
 		pruneFunc(args.Path)
 
 		// error in args
