@@ -6,7 +6,6 @@ GOCLEAN = $(GOCMD) clean
 GOTEST  = $(GOCMD) test
 
 # Define the main Go application
-MAIN_SRC = xpire.go
 MAIN_OUT = xpire
 
 # Define the plugin directory and plugin output
@@ -31,7 +30,7 @@ clean:
 
 ## Build the main Go application
 build:
-	$(GOBUILD) -o $(MAIN_OUT) $(MAIN_SRC)
+	$(GOBUILD) -o $(MAIN_OUT) .
 
 test: test-setup test-all test-teardown
 

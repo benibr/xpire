@@ -15,7 +15,7 @@
 
 - [ ] check for root
 - [x] `--loglevel`
-- [ ] move functions out of main.go to seperate file
+- [x] move functions out of main.go to seperate file
 - [ ] plugin interface definition
 - [ ] zfs plugin
 - [x] add license

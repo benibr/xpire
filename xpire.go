@@ -14,11 +14,8 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"plugin"
-	"syscall"
 	"time"
 
 	"github.com/alexflint/go-arg"
@@ -42,63 +39,6 @@ var args struct {
 	Path          string
 	Prune         bool
 	Loglevel      string `arg:"-l,--loglevel"`
-}
-
-func errorHandler(err error, rc int, msg string) {
-	if err != nil {
-		log.Error(err)
-		os.Exit(rc)
-	}
-}
-
-func okHandler(ok bool, rc int, msg string) {
-	if !ok {
-		log.Error(msg)
-		os.Exit(rc)
-	}
-}
-
-func checkPathArg() {
-	if args.Path == "" {
-		log.Error("--path missing")
-		os.Exit(RC_ERR_ARGS)
-	}
-}
-
-// getFsType detects the filesystem of a given path
-// via a list of supported ones
-func getFsType(path string) (string, error) {
-	var stat syscall.Statfs_t
-	if err := syscall.Statfs(path, &stat); err != nil {
-		return "", err
-	}
-	// from: https://github.com/torvalds/linux/blob/master/include/uapi/linux/magic.h
-	supportedFilesystems := map[int64]string{
-		0x9123683E: "btrfs",
-	}
-	fsType, ok := supportedFilesystems[stat.Type]
-	if !ok {
-		return "", errors.New(fmt.Sprintf("Filesystem not supported: %x.\nTry specifying the correct plugin explicitly with -p", stat.Type))
-	}
-	log.Info("Detected filesystem: ", fsType)
-	return fsType, nil
-}
-
-// loadPlugin opens a filesystem plugin by name
-func loadPlugin(pluginName string) plugin.Plugin {
-	pluginPath := fmt.Sprintf("./filesystems/%s.so", pluginName)
-	plugin, err := plugin.Open(pluginPath)
-	if err != nil {
-		panic(err)
-	}
-	return *plugin
-}
-
-func getPluginSymbol(p *plugin.Plugin, fName string) plugin.Symbol {
-	log.Debug(fmt.Sprintf("Trying to find '%s' in plugin", fName))
-	sym, err := p.Lookup(fName)
-	errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Cannot find function '%s' in plugin", fName))
-	return sym
 }
 
 func main() {
