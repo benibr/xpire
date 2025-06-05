@@ -37,7 +37,7 @@ func TestMain(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("Testing with args "+tt.args[0], func(t *testing.T) {
-			cmd := exec.Command("go", "run", "main.go")
+			cmd := exec.Command("go", "run", ".")
 			cmd.Args = append(cmd.Args, tt.args...)
 
 			output, err := cmd.CombinedOutput()
