@@ -91,7 +91,7 @@ func main() {
 		setSym := getPluginSymbol(&plugin, "SetExpireDate")
 		setFunc, ok := setSym.(func(time.Time, string) error)
 		okHandler(ok, RC_ERR_PLUGIN, "Unexpected type from plugin function symbol")
-		log.Info(fmt.Sprintf("setting expiration date on snapshot '%s' to %s", args.Path, parsedTime.Format(time.DateTime)))
+		log.Info(fmt.Sprintf("setting expiration date on '%s' to %s", args.Path, parsedTime.Format(time.DateTime)))
 		err = setFunc(parsedTime, args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
 
