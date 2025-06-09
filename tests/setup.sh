@@ -4,8 +4,8 @@
 mkdir -p ./mnt/btrfs
 truncate --size 5G btrfs.img
 mkfs.btrfs btrfs.img &>/dev/null
-sudo mount btrfs.img ./mnt/btrfs
-sudo btrfs subvolume create ./mnt/btrfs/subvolume
-sudo btrfs subvolume snapshot ./mnt/btrfs/subvolume ./mnt/btrfs/snapshot
-sudo chmod 777 ./mnt/btrfs -R
+mount -v -o loop btrfs.img ./mnt/btrfs
+btrfs subvolume create ./mnt/btrfs/subvolume
+btrfs subvolume snapshot ./mnt/btrfs/subvolume ./mnt/btrfs/snapshot
+chmod 777 ./mnt/btrfs -R
 mkdir -p mnt/btrfs/dir
