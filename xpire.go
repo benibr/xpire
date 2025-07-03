@@ -93,11 +93,12 @@ func main() {
 		err = fsplugin.SetExpireDate(parsedTime, args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
 
-	// --prune expired data
+		// --prune expired data
 	} else if args.Prune {
-		fsplugin.PruneExpired(args.Path)
+		_, err = fsplugin.PruneExpired(args.Path)
+		errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error during pruning:\n %s", err))
 
-	// error in args
+		// error in args
 	} else {
 		log.Error("you have to specicy either --set or --prune")
 		os.Exit(RC_ERR_ARGS)

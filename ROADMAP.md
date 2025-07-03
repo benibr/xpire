@@ -13,7 +13,7 @@
 
 ### version 0.2
 
-- [ ] check for root
+- [x] check for root
 - [x] `--loglevel`
 - [x] move functions out of main.go to seperate file
 - [x] plugin interface definition

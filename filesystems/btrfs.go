@@ -19,22 +19,30 @@ import (
 	"github.com/dennwc/btrfs"
 	"github.com/pkg/xattr"
 	"github.com/sirupsen/logrus"
+	"os"
 	"path/filepath"
 	"time"
 	"xpire/pluginapi"
 )
 
 const TimeFormat = time.DateTime
+const RC_ERR_PLUGIN = 7
 
 var (
 	log *logrus.Logger
 )
 
-type BtrfsPlugin struct {}
+type BtrfsPlugin struct{}
 
-// internal functions
+// ---- internal functions
 
-// mandatory functions called by fsexpire
+// check if xpire runs as root
+func isRoot() bool {
+	uid := os.Getuid()
+	return uid == 0
+}
+
+// ---- mandatory functions called by fsexpire
 
 func (p BtrfsPlugin) InitLogger(l *logrus.Logger) error {
 	log = l
@@ -55,6 +63,9 @@ func (p BtrfsPlugin) SetExpireDate(t time.Time, path string) error {
 }
 
 func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
+	if !isRoot() {
+		return nil, errors.New("btrfs plugin needs root permissions to list all subvolumes")
+	}
 	log.Info(fmt.Sprintf("pruning expired data in '%s'", path))
 	b, _ := btrfs.Open(path, false)
 	subvols, _ := b.ListSubvolumes(func(svi btrfs.SubvolInfo) bool {
