@@ -30,9 +30,9 @@ func TestMain(t *testing.T) {
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume", "--set", "2002-01-01 15:00:00"},
 			"level=info msg=\"Detected filesystem: btrfs\"\nlevel=info msg=\"setting expiration date on './tests/mnt/btrfs/subvolume' to 2002-01-01 15:00:00\"\n"},
 		// prune, one expired
-		// FIXME: has to have root rights
-		//{[]string{"--path", "./tests/mnt/btrfs", "--prune"},
-		// "level=info msg=\"detected filesystem: btrfs\"\nlevel=info msg=\"pruning all expired snapshots in './tests/mnt/btrfs'\"\n"},
+		{[]string{"--path", "./tests/mnt/btrfs", "--prune"},
+			"level=info msg=\"Detected filesystem: btrfs\"\nlevel=info msg=\"pruning expired data in './tests/mnt/btrfs'\"\nlevel=info msg=\"↳ 'tests/mnt/btrfs/subvolume' expired since 2002-01-01 15:00:00\"\n"},
+		// FIXME: add test for missing root permissions with btrfs prune
 	}
 
 	for _, tt := range tests {
