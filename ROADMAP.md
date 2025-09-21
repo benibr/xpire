@@ -29,10 +29,14 @@
 ### version 0.4
 
 - [ ] posix plugin
+- [ ] Changelog workflow not depending on Github
 
 ## version 0.5
 
 - [ ] introduce commands without --
+
+
+
 
 ### version 0.9
 
@@ -49,4 +53,4 @@
 
 ### version 1.1
 
-- [ ] database plugin
+- [ ] database plugin?
