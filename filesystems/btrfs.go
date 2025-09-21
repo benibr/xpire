@@ -21,22 +21,27 @@ import (
 	"github.com/sirupsen/logrus"
 	"path/filepath"
 	"time"
+	"xpire/pluginapi"
 )
 
 const TimeFormat = time.DateTime
 
-var log *logrus.Logger
+var (
+	log *logrus.Logger
+)
+
+type BtrfsPlugin struct {}
 
 // internal functions
 
 // mandatory functions called by fsexpire
 
-func InitLogger(l *logrus.Logger) error {
+func (p BtrfsPlugin) InitLogger(l *logrus.Logger) error {
 	log = l
 	return nil
 }
 
-func SetExpireDate(t time.Time, path string) error {
+func (p BtrfsPlugin) SetExpireDate(t time.Time, path string) error {
 	//FIXME: check XATTR_SUPPORTED first
 	isSubVolume, _ := btrfs.IsSubVolume(path)
 	if isSubVolume == false {
@@ -49,7 +54,7 @@ func SetExpireDate(t time.Time, path string) error {
 	return nil
 }
 
-func PruneExpired(path string) ([]string, error) {
+func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 	log.Info(fmt.Sprintf("pruning expired data in '%s'", path))
 	b, _ := btrfs.Open(path, false)
 	subvols, _ := b.ListSubvolumes(func(svi btrfs.SubvolInfo) bool {
@@ -81,3 +86,9 @@ func PruneExpired(path string) ([]string, error) {
 }
 
 func main() {}
+
+// compile time check to verify that this plugin
+// correctly implements the interface
+var _ pluginapi.FsPluginApi = BtrfsPlugin{}
+
+var FsPlugin = BtrfsPlugin{}

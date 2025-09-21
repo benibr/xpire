@@ -20,6 +20,7 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/sirupsen/logrus"
+	"xpire/pluginapi"
 )
 
 // global const
@@ -72,12 +73,12 @@ func main() {
 		pluginName = args.Plugin
 	}
 	log.Debug(fmt.Sprintf("Loading plugin '%s'", pluginName))
-	plugin := loadPlugin(pluginName)
-	// init logging in plugin
-	initLoggerSym := getPluginSymbol(&plugin, "InitLogger")
-	initLoggerFunc, ok := initLoggerSym.(func(*logrus.Logger) error)
-	okHandler(ok, RC_ERR_PLUGIN, "unexpected type from module symbol")
-	initLoggerFunc(log)
+	p := loadPlugin(pluginName)
+	symPlugin, err := p.Lookup("FsPlugin")
+	errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Cannot lookup plugin type 'FsPlugin' in plugin '%s'", pluginName))
+	fsplugin, ok := symPlugin.(pluginapi.FsPluginApi)
+	okHandler(ok, RC_ERR_PLUGIN, "Unexpected type from plugin symbol")
+	err = fsplugin.InitLogger(log)
 	errorHandler(err, RC_ERR_PLUGIN, "Cannot initialize logger in plugin")
 
 	// --set expiration date
@@ -88,21 +89,15 @@ func main() {
 		}
 		parsedTime, err = time.Parse(time.DateTime, args.SetExpireDate)
 		errorHandler(err, RC_ERR_ARGS, "Cannot parse specified date")
-		setSym := getPluginSymbol(&plugin, "SetExpireDate")
-		setFunc, ok := setSym.(func(time.Time, string) error)
-		okHandler(ok, RC_ERR_PLUGIN, "Unexpected type from plugin function symbol")
 		log.Info(fmt.Sprintf("setting expiration date on '%s' to %s", args.Path, parsedTime.Format(time.DateTime)))
-		err = setFunc(parsedTime, args.Path)
+		err = fsplugin.SetExpireDate(parsedTime, args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
 
-		// --prune expired data
+	// --prune expired data
 	} else if args.Prune {
-		pruneSym := getPluginSymbol(&plugin, "PruneExpired")
-		pruneFunc, ok := pruneSym.(func(string) ([]string, error))
-		okHandler(ok, RC_ERR_PLUGIN, "Unexpected type from plugin function symbol")
-		pruneFunc(args.Path)
+		fsplugin.PruneExpired(args.Path)
 
-		// error in args
+	// error in args
 	} else {
 		log.Error("you have to specicy either --set or --prune")
 		os.Exit(RC_ERR_ARGS)
