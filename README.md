@@ -1,7 +1,7 @@
 # xpire - a tool to manage data expiration
 
 xpire uses extended attributes (xattrs) of filesystems to store information
-about when a data should expire.
+about when data should expire.
 It aims to provide a simple to use interface for setting and changing these
 dates and pruning all expired files.
 
