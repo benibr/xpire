@@ -68,7 +68,7 @@ func main() {
 	// plugin
 	if args.Plugin == "" {
 		pluginName, err = getFsType(args.Path)
-		errorHandler(err, RC_ERR_FS, "Unable to autoselect plugin by detected filesystem:")
+		errorHandler(err, RC_ERR_FS, "Unable to autoselect plugin by detected filesystem")
 	} else {
 		pluginName = args.Plugin
 	}
