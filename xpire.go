@@ -73,7 +73,8 @@ func main() {
 		pluginName = args.Plugin
 	}
 	log.Debug(fmt.Sprintf("Loading plugin '%s'", pluginName))
-	p := loadPlugin(pluginName)
+	p, err := loadPlugin(pluginName)
+	errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Cannot load plugin '%s'", pluginName))
 	symPlugin, err := p.Lookup("FsPlugin")
 	errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Cannot lookup plugin type 'FsPlugin' in plugin '%s'", pluginName))
 	fsplugin, ok := symPlugin.(pluginapi.FsPluginApi)
