@@ -33,6 +33,7 @@ func TestMain(t *testing.T) {
 		{[]string{"--path", "./tests/mnt/btrfs", "--prune"},
 			"level=info msg=\"Detected filesystem: btrfs\"\nlevel=info msg=\"pruning expired data in './tests/mnt/btrfs'\"\nlevel=info msg=\"↳ 'tests/mnt/btrfs/subvolume' expired since 2002-01-01 15:00:00\"\n"},
 		// FIXME: add test for missing root permissions with btrfs prune
+		// FIXME: add test for btrfs --set on subvolume where user access is forbidden
 	}
 
 	for _, tt := range tests {
