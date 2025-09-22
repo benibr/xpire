@@ -57,7 +57,7 @@ func (p BtrfsPlugin) SetExpireDate(t time.Time, path string) error {
 		return errorMsg
 	}
 	if err := xattr.Set(path, "user.expire", []byte(t.Format(TimeFormat))); err != nil {
-		panic(err)
+		return fmt.Errorf("Failed to set xattr on '%s'\n%w", path, err)
 	}
 	return nil
 }
