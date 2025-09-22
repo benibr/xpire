@@ -62,11 +62,8 @@ func getFsType(path string) (string, error) {
 }
 
 // loadPlugin opens a filesystem plugin by name
-func loadPlugin(pluginName string) plugin.Plugin {
+func loadPlugin(pluginName string) (plugin.Plugin, error) {
 	pluginPath := fmt.Sprintf("./filesystems/%s.so", pluginName)
 	plugin, err := plugin.Open(pluginPath)
-	if err != nil {
-		panic(err)
-	}
-	return *plugin
+	return *plugin, err
 }
