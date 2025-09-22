@@ -40,9 +40,18 @@ Until now plugins for the following filesystems are provided by this repository:
 
 * `btrfs`
 
-## Development
+## Development status
 
 `xpire` is still under heavy development which means that both CLI parameters and
 the plugin API may change without prior notice before version `1.0` is reached.
 This tool and all plugins come as they are and without any warranty.
 Do not use for production data.
+
+## Contribution
+
+Feedback and contributions are welcome! Please use
+[Github issues](https://github.com/benibr/xpire/issues) and
+[Github pull requests](https://github.com/benibr/xpire/pulls).
+
+For writing new plugins, take a look at [./pluginapi/pluginapi.go](./pluginapi/pluginapi.go)
+first.
