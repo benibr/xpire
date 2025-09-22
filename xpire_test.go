@@ -42,7 +42,7 @@ func TestMain(t *testing.T) {
 
 			output, err := cmd.CombinedOutput()
 			if got := string(output); got != tt.want {
-				t.Errorf("\n got output: '%v'\nwant output: '%v'", got, tt.want)
+				t.Errorf("\n want output: '%v'\ngot output: '%v'", tt.want, got)
 			}
 			if err != nil {
 				t.Fatalf("Failed to run command: %v", err)
