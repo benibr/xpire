@@ -15,10 +15,12 @@ type FsPluginApi interface {
 
 	// SetExpireDate is used to set the expiry date  on a given
 	// file/folder/subset. The function must overwrite the date
-	// without asking in case it's already set
+	// without asking in case it's already set.
+	// Permission checks must be done in plugin.
 	SetExpireDate(t time.Time, path string) error
 
 	// PruneExpired cleans up all expired files/folders/subsets
 	// under the given path recursivly without any further user interaction.
+	// Permission checks must be done in plugin.
 	PruneExpired(path string) ([]string, error)
 }
