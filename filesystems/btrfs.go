@@ -85,7 +85,7 @@ func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 		}
 		t, err := time.Parse(TimeFormat, string(xattr))
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		if t.Before(time.Now()) {
 			expiredSubs = append(expiredSubs, sv)
