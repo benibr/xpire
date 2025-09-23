@@ -132,7 +132,6 @@ func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 		}
 		return false
 	})
-	var expiredSubs []btrfs.SubvolInfo
 	for _, sv := range subvols {
 		// FIXME: BUG! This is wrong if the path is not the mountpoint of btrfs FS
 		// when path is a subvolume, then we need to filter the all subvolumes of b and check if they start with name of the given subvolume
@@ -149,7 +148,6 @@ func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 			continue
 		}
 		if t.Before(time.Now()) {
-			expiredSubs = append(expiredSubs, sv)
 			log.Info(fmt.Sprintf("↳ Subvolume '%s' expired since %s", sv.Path, t.Format(TimeFormat)))
 			btrfs.DeleteSubVolume(fullPath)
 		}
