@@ -19,6 +19,7 @@
 - [x] plugin interface definition
 - [x] add license
 - [ ] one subfolder per plugin with READMEs
+- [ ] README for btrfs
 
 ### version 0.3
 
