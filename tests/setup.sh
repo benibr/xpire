@@ -16,6 +16,8 @@ btrfs subvolume create ./mnt/btrfs/root-only
 chmod 640 ./mnt/btrfs/root-only
 chown root: ./mnt/btrfs/root-only
 
+sudo mount -v -o "loop,subvol=subvolume" btrfs.img ./mnt/btrfs/subvolume-mount
+
 btrfs subvolume create ./mnt/btrfs/wrong-time-format
 setfattr ./mnt/btrfs/wrong-time-format/ -n user.expire -v "205-02 111"
 
