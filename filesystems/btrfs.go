@@ -150,7 +150,7 @@ func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 		}
 		if t.Before(time.Now()) {
 			expiredSubs = append(expiredSubs, sv)
-			log.Info(fmt.Sprintf("↳ '%s' expired since %s", fullPath, t.Format(TimeFormat)))
+			log.Info(fmt.Sprintf("↳ Subvolume '%s' expired since %s", sv.Path, t.Format(TimeFormat)))
 			btrfs.DeleteSubVolume(fullPath)
 		}
 	}
