@@ -58,19 +58,26 @@ func (p ZfsPlugin) SetExpireDate(t time.Time, path string) error {
 
 	// this plugin only works on datasets so we need to check
 	// if absPath is a valid, mounted ZFS dataset
-	datasets, err := zfs.DatasetOpenAll()
+	dataset, err := zfs.DatasetOpen(absPath)
 	if err != nil {
 		return fmt.Errorf("failed to list ZFS datasets: %w", err)
 	}
-	defer zfs.DatasetCloseAll(datasets)
+	defer dataset.Close()
 	var isDataset bool
-	for _, ds := range datasets {
-		isMounted, mountpoint := ds.IsMounted()
-		if isMounted == true && mountpoint == absPath {
-			isDataset = true
-			break
-		}
+	ds := dataset
+	//for _, ds := range datasets {
+	isMounted, mountpoint := ds.IsMounted()
+	log.Debug(fmt.Sprintf("DEBUG: %s", isMounted))
+	log.Debug(fmt.Sprintf("DEBUG: %s", mountpoint))
+	log.Debug(fmt.Sprintf("DEBUG: %s", absPath))
+	pp := ds.PoolName()
+	log.Debug(fmt.Sprintf("DEBUG: %s", pp))
+	if (isMounted == true) && (mountpoint == absPath) {
+		log.Debug(fmt.Sprintf("WEhat if"))
+		isDataset = true
+		//break
 	}
+	//}
 	if !isDataset {
 		return fmt.Errorf("'%s' is not a valid, mounted ZFS dataset", absPath)
 	}
