@@ -32,6 +32,9 @@ func TestMain(t *testing.T) {
 		// prune, one expired
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume02", "--prune"},
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume02'\nlevel=info msg=↳ Subvolume 'subvolume02' expired since 2002-01-01 15:00:00\n"},
+		// prune, one sub subvolume expired
+		{[]string{"--path", "./tests/mnt/btrfs/subvolume03", "--prune"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume03'\nlevel=info msg=↳ Subvolume 'subvolume03/subvolume30' expired since 2002-01-01 15:00:00\n"},
 		// prune on a non subvolume directory
 		{[]string{"--path", "./tests/mnt/btrfs/dir", "--prune"},
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/dir'\n"},
