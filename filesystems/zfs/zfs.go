@@ -21,6 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"os"
 	"time"
+	"xpire/helpers"
 	"xpire/pluginapi"
 )
 
@@ -50,9 +51,7 @@ func (p ZfsPlugin) InitLogger(l *logrus.Logger) error {
 }
 
 func (p ZfsPlugin) SetExpireDate(t time.Time, path string) error {
-	//absPath, err := cleanPath(path)
-	absPath := path
-	var err error
+	absPath, err := helpers.CleanPath(path)
 	if err != nil {
 		return fmt.Errorf("failed to resolve path: %w", err)
 	}
