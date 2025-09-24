@@ -14,13 +14,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	zfs "github.com/bicomsystems/go-libzfs"
+	"github.com/pkg/xattr"
 	"github.com/sirupsen/logrus"
 	"os"
-	"path/filepath"
-	"sort"
-	"strings"
 	"time"
 	"xpire/pluginapi"
 )
@@ -51,6 +49,30 @@ func (p ZfsPlugin) InitLogger(l *logrus.Logger) error {
 }
 
 func (p ZfsPlugin) SetExpireDate(t time.Time, path string) error {
+	absPath, err := cleanPath(path)
+	if err != nil {
+		return fmt.Errorf("failed to resolve path: %w", err)
+	}
+
+	datasets, err := zfs.DatasetOpenAll()
+	if err != nil {
+		return fmt.Errorf("failed to list ZFS datasets: %w", err)
+	}
+	defer zfs.DatasetCloseAll(datasets)
+	var isDataset bool
+	for _, ds := range datasets {
+		isMounted, mountpoint := ds.IsMounted()
+		if isMounted == true && mountpoint == absPath {
+			isDataset = true
+			break
+		}
+	}
+	if !isDataset {
+		return fmt.Errorf("path '%s' is not a ZFS dataset mountpoint", absPath)
+	}
+	if err := xattr.Set(path, "user.expire", []byte(t.Format(TimeFormat))); err != nil {
+		return fmt.Errorf("Failed to set xattr on '%s'\n%w", path, err)
+	}
 	return nil
 }
 
