@@ -10,7 +10,7 @@ MAIN_OUT = xpire
 
 # Define the plugin directory and plugin output
 PLUGIN_DIR = filesystems
-PLUGIN_SRC = $(PLUGIN_DIR)/*.go
+PLUGIN_SRC = $(PLUGIN_DIR)/*/*.go
 
 .PHONY: all build plugins test clean
 
@@ -26,7 +26,7 @@ plugins:
 # Clean up
 clean:
 	$(GOCLEAN)
-	rm -f $(MAIN_OUT) $(PLUGIN_DIR)/*.so
+	rm -f $(MAIN_OUT) $(PLUGIN_DIR)/*/*.so
 
 ## Build the main Go application
 build:
