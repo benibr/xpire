@@ -54,6 +54,7 @@ func main() {
 	log.SetFormatter(&logrus.TextFormatter{
 		DisableTimestamp: true,
 		FullTimestamp:    false,
+		DisableQuote:     true,
 	})
 
 	// args
