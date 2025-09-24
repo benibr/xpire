@@ -23,6 +23,7 @@ func TestMain(t *testing.T) {
 		args []string
 		want string
 	}{
+		// BTRFS
 		// prune, non expired
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume01", "--prune"},
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume01'\n"},
@@ -46,6 +47,26 @@ func TestMain(t *testing.T) {
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/wrong-time-format'\nlevel=warning msg=Cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\"\n"},
 		// FIXME: add test for missing root permissions with btrfs prune
 		// FIXME: add test for btrfs --set on subvolume where user access is forbidden
+
+		// ZFS
+		// prune, non expired
+		{[]string{"--path", "./tests/mnt/zfs/dataset00/dataset01", "--prune"},
+			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dataset00/dataset01'\n"},
+		// set expire date
+		{[]string{"--path", "./tests/mnt/zfs/dataset00/dataset01", "--set", "2002-01-01 15:00:00"},
+			"level=info msg=Detected filesystem: zfs\nlevel=info msg=setting expiration date on './tests/mnt/zfs/dataset00/dataset01' to 2002-01-01 15:00:00\n"},
+		// prune, one expired
+		{[]string{"--path", "./tests/mnt/zfs/dataset00/dataset02", "--prune"},
+			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dataset00/dataset02'\nlevel=info msg=↳ Dataset 'xpool/dataset00/dataset02' expired since 2002-01-01 15:00:00\n"},
+		// prune, one sub dataset expired
+		{[]string{"--path", "./tests/mnt/zfs/dataset00/dataset03", "--prune"},
+			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dataset00/dataset03'\nlevel=info msg=↳ Dataset 'xpool/dataset00/dataset03/dataset33' expired since 2002-01-01 15:00:00\n"},
+		// prune on a non dataset directory
+		{[]string{"--path", "./tests/mnt/zfs/dir", "--prune"},
+			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dir'\n"},
+		// prune on subvolume with wrong time format in xattr
+		{[]string{"--path", "./tests/mnt/zfs/dataset00/wrong-time-format", "--prune"},
+			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dataset00/wrong-time-format'\nlevel=warning msg=Cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\"\n"},
 	}
 
 	for _, tt := range tests {
