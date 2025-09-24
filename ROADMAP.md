@@ -18,8 +18,8 @@
 - [x] move functions out of main.go to seperate file
 - [x] plugin interface definition
 - [x] add license
-- [ ] one subfolder per plugin with READMEs
-- [ ] README for btrfs
+- [x] one subfolder per plugin with READMEs
+- [x] README for btrfs
 
 ### version 0.3
 
@@ -29,7 +29,8 @@
 
 - [ ] add --list option
 - [ ] add --unset option
-- [ ] more tests
+- [ ] add --dry-run option
+- [ ] check if more tests are needed
 
 ### version 0.5
 
