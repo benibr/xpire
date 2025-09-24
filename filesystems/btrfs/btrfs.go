@@ -21,7 +21,6 @@ import (
 	"github.com/pkg/xattr"
 	"github.com/sirupsen/logrus"
 	"path/filepath"
-	"sort"
 	"strings"
 	"time"
 	"xpire/helpers"
@@ -39,23 +38,6 @@ var (
 type BtrfsPlugin struct{}
 
 // ---- internal functions
-func findParentMount(path string) (string, error) {
-	absPath, _ := helpers.CleanPath(path)
-	log.Debug(fmt.Sprintf("searching for parent mount of '%s'", absPath))
-	// get all possible parents mounts
-	mounts, _ := mountinfo.GetMounts(mountinfo.ParentsFilter(absPath))
-	if len(mounts) == 0 {
-		return "", fmt.Errorf("no parent mounts found for %s", absPath)
-	}
-	if len(mounts) > 1 {
-		// usually we find at least two parents ;-)
-		sort.Slice(mounts, func(i, j int) bool {
-			return len(mounts[i].Mountpoint) > len(mounts[j].Mountpoint)
-		})
-	}
-	log.Debug(fmt.Sprintf("found parent mount '%s'", mounts[0].Mountpoint))
-	return mounts[0].Mountpoint, nil
-}
 
 // ---- mandatory functions called by fsexpire
 func (p BtrfsPlugin) InitLogger(l *logrus.Logger) error {
@@ -87,7 +69,7 @@ func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 	var mountPoint string = absPath
 	pathIsMountpoint, err := mountinfo.Mounted(absPath)
 	if pathIsMountpoint == false {
-		mountPoint, _ = findParentMount(absPath)
+		mountPoint, _ = helpers.FindParentMount(absPath)
 	}
 	b, err := btrfs.Open(mountPoint, false)
 	if err != nil {

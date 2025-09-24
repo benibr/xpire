@@ -5,3 +5,5 @@ for i in ./mnt/*; do
 done
 
 rm -rf ./mnt *.img
+
+zpool destroy xpool
