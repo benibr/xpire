@@ -37,3 +37,39 @@ setfattr ./mnt/btrfs/wrong-time-format/ -n user.expire -v "205-02 111"
 
 # non subvolumes
 mkdir -p mnt/btrfs/dir
+
+echo "#######"
+echo "# ZFS #"
+echo "#######"
+
+# prepare zfs
+mkdir -p ./mnt/zfs/
+rm -f zfs.img
+truncate --size 5G zfs.img
+zpool create xpool -m $(readlink -f ./mnt/zfs) ./zfs.img -f
+zfs create xpool/dataset00
+
+# regular datasets
+zfs create xpool/dataset00/dataset01
+
+# snapshots
+#btrfs subvolume snapshot ./mnt/btrfs/subvolume01 ./mnt/btrfs/snapshot
+
+# default permissions
+chmod 777 ./mnt/zfs -R
+
+# root only subvolume
+#btrfs subvolume create ./mnt/btrfs/root-only
+#chmod 640 ./mnt/btrfs/root-only
+#chown root: ./mnt/btrfs/root-only
+#
+## subvolume mount under other name
+#mkdir -p ./mnt/btrfs/subvolume-mount
+#sudo mount -v -o "loop,subvol=subvolume01" btrfs.img ./mnt/btrfs/subvolume-mount
+#
+## subvolume with wrong expire date
+#btrfs subvolume create ./mnt/btrfs/wrong-time-format
+#setfattr ./mnt/btrfs/wrong-time-format/ -n user.expire -v "205-02 111"
+#
+## non subvolumes
+#mkdir -p mnt/btrfs/dir
