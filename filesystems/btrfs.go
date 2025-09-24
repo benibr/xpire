@@ -144,7 +144,7 @@ func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 		}
 		t, err := time.Parse(TimeFormat, string(xattr))
 		if err != nil {
-			log.Debug(fmt.Errorf("Cannot parse expire date format:\n\t%w", err))
+			log.Warn(fmt.Errorf("Cannot parse expire date format:\n\t%w", err))
 			continue
 		}
 		if t.Before(time.Now()) {
