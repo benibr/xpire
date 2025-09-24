@@ -20,11 +20,11 @@ import (
 	"github.com/moby/sys/mountinfo"
 	"github.com/pkg/xattr"
 	"github.com/sirupsen/logrus"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+	"xpire/helpers"
 	"xpire/pluginapi"
 )
 
@@ -39,21 +39,8 @@ var (
 type BtrfsPlugin struct{}
 
 // ---- internal functions
-func cleanPath(path string) (string, error) {
-	absPath, err := filepath.Abs(path)
-	if err != nil {
-		return "", err
-	}
-	absPath, err = filepath.EvalSymlinks(absPath)
-	if err != nil {
-		return "", err
-	}
-	absPath = filepath.Clean(absPath)
-	return absPath, nil
-}
-
 func findParentMount(path string) (string, error) {
-	absPath, _ := cleanPath(path)
+	absPath, _ := helpers.CleanPath(path)
 	log.Debug(fmt.Sprintf("searching for parent mount of '%s'", absPath))
 	// get all possible parents mounts
 	mounts, _ := mountinfo.GetMounts(mountinfo.ParentsFilter(absPath))
@@ -70,14 +57,7 @@ func findParentMount(path string) (string, error) {
 	return mounts[0].Mountpoint, nil
 }
 
-// check if xpire runs as root
-func isRoot() bool {
-	uid := os.Getuid()
-	return uid == 0
-}
-
 // ---- mandatory functions called by fsexpire
-
 func (p BtrfsPlugin) InitLogger(l *logrus.Logger) error {
 	log = l
 	return nil
@@ -97,13 +77,13 @@ func (p BtrfsPlugin) SetExpireDate(t time.Time, path string) error {
 }
 
 func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
-	if !isRoot() {
+	if !helpers.IsRoot() {
 		return nil, errors.New("btrfs plugin needs root permissions to list all subvolumes")
 	}
 	log.Info(fmt.Sprintf("pruning expired data in '%s'", path))
 
 	// next parent mountpoint of path is the btrfs filesystem we work on
-	absPath, _ := cleanPath(path)
+	absPath, _ := helpers.CleanPath(path)
 	var mountPoint string = absPath
 	pathIsMountpoint, err := mountinfo.Mounted(absPath)
 	if pathIsMountpoint == false {
