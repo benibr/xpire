@@ -3,7 +3,7 @@
 xpire uses extended attributes (xattrs) of filesystems to store information
 about when data should expire.
 It aims to provide a simple to use interface for setting and changing these
-dates and pruning all expired files.
+dates and pruning expired files.
 
 While the xpire binary is only the user interface,
 the actual work is done by plugins which should enable
@@ -11,10 +11,12 @@ xpire to make use of filesystem specific structures like
 subvolumes or snapshots to prevent expensive tree walks
 during pruning.
 
+xpire uses the extended attribute `user.expire="YYYY-MM-DD HH:MM:SS"`.
+
 ## Usage
 
-Currently two main functionalities are provided: setting a expire date
-and pruneing all expired files.
+Currently two main functionalities are provided: **setting a expire date**
+and **pruneing all expired files**.
 Be arware that you might need root priviledges.
 
 ```sh
