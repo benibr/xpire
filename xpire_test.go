@@ -25,20 +25,20 @@ func TestMain(t *testing.T) {
 	}{
 		// prune, non expired
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume01", "--prune"},
-			"level=info msg=\"Detected filesystem: btrfs\"\nlevel=info msg=\"pruning expired data in './tests/mnt/btrfs/subvolume01'\"\n"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume01'\n"},
 		// set expire date
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume02", "--set", "2002-01-01 15:00:00"},
-			"level=info msg=\"Detected filesystem: btrfs\"\nlevel=info msg=\"setting expiration date on './tests/mnt/btrfs/subvolume02' to 2002-01-01 15:00:00\"\n"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=setting expiration date on './tests/mnt/btrfs/subvolume02' to 2002-01-01 15:00:00\n"},
 		// prune, one expired
-		{[]string{"--path", "./tests/mnt/btrfs", "--prune"},
-			"level=info msg=\"Detected filesystem: btrfs\"\nlevel=info msg=\"pruning expired data in './tests/mnt/btrfs'\"\nlevel=info msg=\"↳ Subvolume 'subvolume02' expired since 2002-01-01 15:00:00\"\n"},
+		{[]string{"--path", "./tests/mnt/btrfs/subvolume02", "--prune"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume02'\nlevel=info msg=↳ Subvolume 'subvolume02' expired since 2002-01-01 15:00:00\n"},
 		// prune on a non subvolume directory
 		{[]string{"--path", "./tests/mnt/btrfs/dir", "--prune"},
-			"level=info msg=\"Detected filesystem: btrfs\"\nlevel=info msg=\"pruning expired data in './tests/mnt/btrfs/dir'\"\n"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/dir'\n"},
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume-mount", "--prune"},
-			"level=info msg=\"Detected filesystem: btrfs\"\nlevel=info msg=\"pruning expired data in './tests/mnt/btrfs/subvolume-mount'\"\n"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume-mount'\n"},
 		{[]string{"--path", "./tests/mnt/btrfs/wrong-time-format", "--prune"},
-			"level=info msg=\"Detected filesystem: btrfs\"\nlevel=info msg=\"pruning expired data in './tests/mnt/btrfs/wrong-time-format'\"\nlevel=warning msg=\"Cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\""},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/wrong-time-format'\nlevel=warning msg=Cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\"\n"},
 		// FIXME: add test for missing root permissions with btrfs prune
 		// FIXME: add test for btrfs --set on subvolume where user access is forbidden
 	}
