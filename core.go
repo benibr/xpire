@@ -52,6 +52,7 @@ func getFsType(path string) (string, error) {
 	// from: https://github.com/torvalds/linux/blob/master/include/uapi/linux/magic.h
 	supportedFilesystems := map[int64]string{
 		0x9123683E: "btrfs",
+		0x2FC12FC1: "zfs",
 	}
 	fsType, ok := supportedFilesystems[stat.Type]
 	if !ok {
