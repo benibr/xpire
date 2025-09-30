@@ -23,13 +23,15 @@
 
 ### version 0.3
 
-- [ ] zfs plugin
+- [x] zfs plugin
 
 ### version 0.4
 
 - [ ] add --list option
 - [ ] add --unset option
 - [ ] add --dry-run option
+- [ ] tests in containers
+- [ ] tests with multiple users
 - [ ] check if more tests are needed
 
 ### version 0.5
@@ -38,16 +40,26 @@
 
 ## version 0.6
 
-- [ ] introduce commands without --
-- [ ] Changelog workflow not depending on Github
+- [ ] introduce commands without -- (?)
+- [x] Changelog workflow not depending on Github
+- [ ] use /usr/lib/modules/6.16.8-arch3-1/build/include/uapi/linux/magic.h to autodetect filesystems
+
+## version 0.7
 
 
+## version 0.8 - going weird
+
+- [ ] check if any kind of S3 plugin is feasible
+- [ ] daos plugin
+OR
+- [ ] gpfs plugin
 
 
 ### version 0.9
 
 - Allow plugin path to be $CWD or /usr
 - [ ] Make install
+- [ ] Make uninstall
 - [ ] Containerfile
 - [ ] AUR
 - [ ] .rpm
@@ -55,8 +67,10 @@
 
 ### version 1.0
 
+- [ ] github pipeline to build all packages
 - [ ] remove all #FIXMEs
+- [ ] align log/error messages in all plugins
 
-### version 1.1
+### Future Ideas
 
 - [ ] database plugin?
