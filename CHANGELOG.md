@@ -1,5 +1,9 @@
 ## v0.2.0
 
+* added ZFS plugin
+
+## v0.2.0
+
 * `--loglevel` can be used to make xpire more/less verbose
 * btrfs: checks for missing permissions
 * btrfs: prune function now understands nested subvolume structures
