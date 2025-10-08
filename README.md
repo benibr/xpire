@@ -41,6 +41,7 @@ Just run `make` and then the binary is available under `./xpire`.
 Until now plugins for the following filesystems are provided by this repository:
 
 * `btrfs`
+* `zfs`
 
 ## Development status
 
