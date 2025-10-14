@@ -23,4 +23,8 @@ type FsPluginApi interface {
 	// under the given path recursivly without any further user interaction.
 	// Permission checks must be done in plugin.
 	PruneExpired(path string) ([]string, error)
+
+	// List all set expire dates that are currently set
+	// regardless if they're reached or not
+	List(path string) ([]string, error)
 }

@@ -40,7 +40,6 @@
 
 ## version 0.6
 
-- [ ] introduce commands without -- (?)
 - [x] Changelog workflow not depending on Github
 - [ ] use /usr/lib/modules/6.16.8-arch3-1/build/include/uapi/linux/magic.h to autodetect filesystems
 

@@ -16,11 +16,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 	"time"
+
+	"xpire/pluginapi"
 
 	"github.com/alexflint/go-arg"
 	"github.com/sirupsen/logrus"
-	"xpire/pluginapi"
 )
 
 // global const
@@ -39,7 +41,8 @@ var args struct {
 	Plugin        string `arg:"-p,--plugin"`
 	Path          string
 	Prune         bool
-	Loglevel      string `arg:"-l,--loglevel"`
+	Loglevel      string `arg:"-d,--loglevel"`
+	List          bool   `arg:"-l,--list"`
 }
 
 func main() {
@@ -99,6 +102,11 @@ func main() {
 	} else if args.Prune {
 		_, err = fsplugin.PruneExpired(args.Path)
 		errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error during pruning:\n %s", err))
+
+		// --list dates
+	} else if args.List {
+		_, err = fsplugin.List(args.Path)
+		errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error while listing expiry dates:\n %s", err))
 
 		// error in args
 	} else {
