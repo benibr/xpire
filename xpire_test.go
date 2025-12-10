@@ -44,7 +44,7 @@ func TestMain(t *testing.T) {
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume-mount'\n"},
 		// prune on subvolume with wrong time format in xattr
 		{[]string{"--path", "./tests/mnt/btrfs/wrong-time-format", "--prune"},
-			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/wrong-time-format'\nlevel=warning msg=Cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\"\n"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/wrong-time-format'\nlevel=warning msg=cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\"\n"},
 		// FIXME: add test for missing root permissions with btrfs prune
 		// FIXME: add test for btrfs --set on subvolume where user access is forbidden
 
