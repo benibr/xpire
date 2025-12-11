@@ -37,6 +37,7 @@
 ### version 0.5
 
 - [ ] posix plugin
+- [ ] consitent error format
 
 ## version 0.6
 
@@ -45,6 +46,8 @@
 
 ## version 0.7
 
+- [ ] evaluate other logger
+- [ ] make output mor readable
 
 ## version 0.8 - going weird
 
@@ -52,7 +55,6 @@
 - [ ] daos plugin
 OR
 - [ ] gpfs plugin
-
 
 ### version 0.9
 
