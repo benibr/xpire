@@ -24,6 +24,8 @@ func TestMain(t *testing.T) {
 		want string
 	}{
 		// BTRFS
+		{[]string{"--path", "./tests/mnt/btrfs/subvolume01", "--list"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=searching for all expire dates in '/home/bbraunger/Workspace/private/xpire/tests/mnt/btrfs/subvolume01'\n"},
 		// prune, non expired
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume01", "--prune"},
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume01'\n"},
@@ -49,6 +51,9 @@ func TestMain(t *testing.T) {
 		// FIXME: add test for btrfs --set on subvolume where user access is forbidden
 
 		// ZFS
+		// prune, non expired
+		{[]string{"--path", "./tests/mnt/zfs/dataset00/dataset01", "--list"},
+			"level=info msg=Detected filesystem: zfs\nlevel=info msg=Listing data in './tests/mnt/zfs/dataset00/dataset01'\n"},
 		// prune, non expired
 		{[]string{"--path", "./tests/mnt/zfs/dataset00/dataset01", "--prune"},
 			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dataset00/dataset01'\n"},
