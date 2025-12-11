@@ -94,15 +94,15 @@ func (p ZfsPlugin) SetExpireDate(t time.Time, path string) error {
 		return fmt.Errorf("'%s' is not a valid, mounted ZFS dataset", absPath)
 	}
 	if err := xattr.Set(path, "user.expire", []byte(t.Format(TimeFormat))); err != nil {
-		return fmt.Errorf("Failed to set xattr on '%s'\n%w", path, err)
+		return fmt.Errorf("failed to set xattr on '%s'\n%w", path, err)
 	}
 	return nil
 }
 
 func (p ZfsPlugin) PruneExpired(path string) ([]string, error) {
 	absPath, _ := helpers.CleanPath(path)
-	log.Info(fmt.Sprintf("pruning expired data in '%s'", path)) // absPath, err := helpers.CleanPath(path)
-	//FIXME: this code is not DRY, both SetExpireDate and this have the same code
+	log.Info(fmt.Sprintf("pruning expired data in '%s'", path))
+
 	datasets, err := zfs.Datasets("")
 	if err != nil {
 		return nil, fmt.Errorf("failed to list ZFS datasets: %w", err)
@@ -117,12 +117,12 @@ func (p ZfsPlugin) PruneExpired(path string) ([]string, error) {
 		if isMounted == "yes" {
 			xattr, err := xattr.Get(mountpoint, "user.expire")
 			if err != nil {
-				log.Debug(fmt.Errorf("Cannot read expire xattr on '%s'\n\t%w", mountpoint, err))
+				log.Debug(fmt.Errorf("cannot read expire xattr on '%s'\n\t%w", mountpoint, err))
 				continue
 			}
 			t, err := time.Parse(TimeFormat, string(xattr))
 			if err != nil {
-				log.Warn(fmt.Errorf("Cannot parse expire date format:\n\t%w", err))
+				log.Warn(fmt.Errorf("cannot parse expire date format:\n\t%w", err))
 				continue
 			}
 			if t.Before(time.Now()) {
@@ -130,6 +130,46 @@ func (p ZfsPlugin) PruneExpired(path string) ([]string, error) {
 				ds.Destroy(0)
 			}
 		} else {
+			log.Debug(fmt.Sprintf("skipping unmounted path '%s'", mountpoint))
+			continue
+		}
+	}
+	return nil, nil
+}
+
+func (ZfsPlugin) List(path string) ([]string, error) {
+	absPath, _ := helpers.CleanPath(path)
+	log.Info(fmt.Sprintf("Listing data in '%s'", path))
+
+	datasets, err := zfs.Datasets("")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list ZFS datasets: %w", err)
+	}
+	for _, ds := range datasets {
+		mountpoint, _ := zfsGet(ds.Name, "mountpoint")
+		if !strings.HasPrefix(mountpoint, absPath) {
+			continue
+		}
+		log.Debug(fmt.Sprintf("Checking path '%s'", mountpoint))
+		isMounted, _ := zfsGet(ds.Name, "mounted")
+		if isMounted == "yes" {
+			xattr, err := xattr.Get(mountpoint, "user.expire")
+			if err != nil {
+				log.Debug(fmt.Errorf("cannot read expire xattr on '%s'\n\t%w", mountpoint, err))
+				continue
+			}
+			t, err := time.Parse(TimeFormat, string(xattr))
+			if err != nil {
+				log.Warn(fmt.Errorf("cannot parse expire date format:\n\t%w", err))
+				continue
+			}
+			if t.Before(time.Now()) {
+				log.Info(fmt.Sprintf("↳ Dataset '%s' expired since %s", ds.Name, t.Format(TimeFormat)))
+			} else {
+				log.Info(fmt.Sprintf("↳ Dataset '%s' expires in %s", ds.Name, t.Format(TimeFormat)))
+			}
+		} else {
+			log.Debug(fmt.Sprintf("skipping unmounted path '%s'", mountpoint))
 			continue
 		}
 	}

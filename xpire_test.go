@@ -66,7 +66,7 @@ func TestMain(t *testing.T) {
 			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dir'\n"},
 		// prune on subvolume with wrong time format in xattr
 		{[]string{"--path", "./tests/mnt/zfs/dataset00/wrong-time-format", "--prune"},
-			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dataset00/wrong-time-format'\nlevel=warning msg=Cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\"\n"},
+			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dataset00/wrong-time-format'\nlevel=warning msg=cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\"\n"},
 	}
 
 	for _, tt := range tests {
