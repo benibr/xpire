@@ -21,8 +21,6 @@ type FsPluginApi interface {
 
 	// UnsetExpireDate is used to remove a expiry date on a given
 	// file/folder/subset.
-	// The function must return **without** error if there
-	// is not date set yet.
 	UnsetExpireDate(path string) error
 
 	// PruneExpired cleans up all expired files/folders/subsets
