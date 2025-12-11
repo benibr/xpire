@@ -35,7 +35,7 @@ var log = logrus.New()
 // functions
 var args struct {
 	SetExpireDate   string `arg:"-s,--set"`
-	UnsetExpireDate string `arg:"-u,--unset"`
+	UnsetExpireDate bool   `arg:"-u,--unset"`
 	Plugin          string `arg:"-p,--plugin"`
 	Path            string
 	Prune           bool
@@ -93,7 +93,7 @@ func main() {
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
 
 		// --unset expiration date
-	} else if args.UnsetExpireDate != "" {
+	} else if args.UnsetExpireDate {
 		log.Info(fmt.Sprintf("unsetting expiration date on '%s'", args.Path))
 		err = fsplugin.UnsetExpireDate(args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot unset expiration date")
