@@ -65,6 +65,37 @@ func (p ZfsPlugin) InitLogger(l *logrus.Logger) error {
 }
 
 func (p ZfsPlugin) UnsetExpireDate(path string) error {
+	absPath, err := helpers.CleanPath(path)
+	if err != nil {
+		return fmt.Errorf("failed to resolve path: %w", err)
+	}
+	// this plugin only works on datasets so we need to check
+	// if absPath is a valid, mounted ZFS dataset
+	datasets, err := zfs.Datasets("")
+	if err != nil {
+		return fmt.Errorf("failed to list ZFS datasets: %w", err)
+	}
+	var isDataset bool
+	// for unknown reasons ds.IsMounted returns the mountpoint of the FS not the DS
+	// so we iterate through all DSs and check if one return
+	for _, ds := range datasets {
+		isMounted, _ := zfsGet(ds.Name, "mounted")
+		if isMounted == "yes" {
+			mountpoint, _ := zfsGet(ds.Name, "mountpoint")
+			if mountpoint == absPath {
+				isDataset = true
+				break
+			}
+		} else {
+			continue
+		}
+	}
+	if !isDataset {
+		return fmt.Errorf("'%s' is not a valid, mounted ZFS dataset", absPath)
+	}
+	if err := xattr.Remove(path, "user.expire"); err != nil {
+		return fmt.Errorf("failed to remove xattr on '%s'\n%w", path, err)
+	}
 	return nil
 }
 
