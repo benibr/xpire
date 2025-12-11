@@ -33,8 +33,8 @@ func TestMain(t *testing.T) {
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume02", "--set", "2002-01-01 15:00:00"},
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=setting expiration date on './tests/mnt/btrfs/subvolume02' to 2002-01-01 15:00:00\n"},
 		// unset non-existing expire date
-		{[]string{"--path", "./tests/mnt/btrfs/subvolume01", "--unset"},
-			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=unsetting expiration date on './tests/mnt/btrfs/subvolume01'\n"},
+		{[]string{"--path", "./tests/mnt/btrfs/subvolume03/subvolume31", "--unset"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=unsetting expiration date on './tests/mnt/btrfs/subvolume03/subvolume31'\n"},
 		// prune, one expired
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume02", "--prune"},
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume02'\nlevel=info msg=↳ Subvolume 'subvolume02' expired since 2002-01-01 15:00:00\n"},
