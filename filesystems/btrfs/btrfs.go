@@ -73,6 +73,15 @@ func (p BtrfsPlugin) InitLogger(l *logrus.Logger) error {
 }
 
 func (p BtrfsPlugin) UnsetExpireDate(path string) error {
+	//FIXME: check XATTR_SUPPORTED first
+	isSubVolume, _ := btrfs.IsSubVolume(path)
+	if !isSubVolume {
+		errorMsg := fmt.Errorf("'%s' is not a btrfs subvolume", path)
+		return errorMsg
+	}
+	if err := xattr.Remove(path, "user.expire"); err != nil {
+		return fmt.Errorf("failed to remove xattr on '%s'\n%w", path, err)
+	}
 	return nil
 }
 
