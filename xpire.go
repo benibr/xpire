@@ -16,11 +16,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"path"
 	"time"
-
 	"xpire/pluginapi"
-
 	"github.com/alexflint/go-arg"
 	"github.com/sirupsen/logrus"
 )
