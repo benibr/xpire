@@ -32,6 +32,9 @@ func TestMain(t *testing.T) {
 		// set expire date
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume02", "--set", "2002-01-01 15:00:00"},
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=setting expiration date on './tests/mnt/btrfs/subvolume02' to 2002-01-01 15:00:00\n"},
+		// unset non-existing expire date
+		{[]string{"--path", "./tests/mnt/btrfs/subvolume01", "--unset"},
+			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=unsetting expiration date on './tests/mnt/btrfs/subvolume01'\n"},
 		// prune, one expired
 		{[]string{"--path", "./tests/mnt/btrfs/subvolume02", "--prune"},
 			"level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume02'\nlevel=info msg=↳ Subvolume 'subvolume02' expired since 2002-01-01 15:00:00\n"},
@@ -60,6 +63,9 @@ func TestMain(t *testing.T) {
 		// set expire date
 		{[]string{"--path", "./tests/mnt/zfs/dataset00/dataset01", "--set", "2002-01-01 15:00:00"},
 			"level=info msg=Detected filesystem: zfs\nlevel=info msg=setting expiration date on './tests/mnt/zfs/dataset00/dataset01' to 2002-01-01 15:00:00\n"},
+		// unset non-existing expire date
+		{[]string{"--path", "./tests/mnt/zfs/dataset00/dataset01", "--unset"},
+			"level=info msg=Detected filesystem: zfs\nlevel=info msg=unsetting expiration date on './tests/mnt/zfs/dataset00/dataset01'\n"},
 		// prune, one expired
 		{[]string{"--path", "./tests/mnt/zfs/dataset00/dataset02", "--prune"},
 			"level=info msg=Detected filesystem: zfs\nlevel=info msg=pruning expired data in './tests/mnt/zfs/dataset00/dataset02'\nlevel=info msg=↳ Dataset 'xpool/dataset00/dataset02' expired since 2002-01-01 15:00:00\n"},
