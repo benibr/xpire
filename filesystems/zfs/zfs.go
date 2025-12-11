@@ -64,6 +64,10 @@ func (p ZfsPlugin) InitLogger(l *logrus.Logger) error {
 	return nil
 }
 
+func (p ZfsPlugin) UnsetExpireDate(path string) error {
+	return nil
+}
+
 func (p ZfsPlugin) SetExpireDate(t time.Time, path string) error {
 	absPath, err := helpers.CleanPath(path)
 	if err != nil {

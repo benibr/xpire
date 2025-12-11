@@ -15,11 +15,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/alexflint/go-arg"
+	"github.com/sirupsen/logrus"
 	"os"
 	"time"
 	"xpire/pluginapi"
-	"github.com/alexflint/go-arg"
-	"github.com/sirupsen/logrus"
 )
 
 // global const
@@ -34,12 +34,13 @@ var log = logrus.New()
 
 // functions
 var args struct {
-	SetExpireDate string `arg:"-s,--set"`
-	Plugin        string `arg:"-p,--plugin"`
-	Path          string
-	Prune         bool
-	Loglevel      string `arg:"-d,--loglevel"`
-	List          bool   `arg:"-l,--list"`
+	SetExpireDate   string `arg:"-s,--set"`
+	UnsetExpireDate string `arg:"-u,--unset"`
+	Plugin          string `arg:"-p,--plugin"`
+	Path            string
+	Prune           bool
+	Loglevel        string `arg:"-d,--loglevel"`
+	List            bool   `arg:"-l,--list"`
 }
 
 func main() {
@@ -85,15 +86,17 @@ func main() {
 
 	// --set expiration date
 	if args.SetExpireDate != "" {
-		if args.Prune {
-			log.Error("Cannot use --prune with --set")
-			os.Exit(RC_ERR_ARGS)
-		}
 		parsedTime, err = time.Parse(time.DateTime, args.SetExpireDate)
 		errorHandler(err, RC_ERR_ARGS, "Cannot parse specified date")
 		log.Info(fmt.Sprintf("setting expiration date on '%s' to %s", args.Path, parsedTime.Format(time.DateTime)))
 		err = fsplugin.SetExpireDate(parsedTime, args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
+
+		// --unset expiration date
+	} else if args.UnsetExpireDate != "" {
+		log.Info(fmt.Sprintf("unsetting expiration date on '%s'", args.Path))
+		err = fsplugin.UnsetExpireDate(args.Path)
+		errorHandler(err, RC_ERR_FS, "Error: Cannot unset expiration date")
 
 		// --prune expired data
 	} else if args.Prune {

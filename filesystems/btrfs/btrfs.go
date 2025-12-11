@@ -72,6 +72,10 @@ func (p BtrfsPlugin) InitLogger(l *logrus.Logger) error {
 	return nil
 }
 
+func (p BtrfsPlugin) UnsetExpireDate(path string) error {
+	return nil
+}
+
 func (p BtrfsPlugin) SetExpireDate(t time.Time, path string) error {
 	//FIXME: check XATTR_SUPPORTED first
 	isSubVolume, _ := btrfs.IsSubVolume(path)
