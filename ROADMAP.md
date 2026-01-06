@@ -27,8 +27,8 @@
 
 ### version 0.4
 
-- [ ] add --list option
-- [ ] add --unset option
+- [x] add --list option
+- [x] add --unset option
 - [ ] add --dry-run option
 - [ ] tests in containers
 - [ ] tests with multiple users
