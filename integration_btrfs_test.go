@@ -125,8 +125,8 @@ func TestBTRFS(t *testing.T) {
 		abs, _ := filepath.Abs(base)
 		out := assertRun(t, RC_OK, []string{
 			"searching for all expire dates in '" + abs + "'",
-			"↳ Subvolume '" + testName(t) + "/expired' expired since " + expiredDate,
-			"↳ Subvolume '" + testName(t) + "/future' expires in " + futureDate,
+			"↳ '" + abs + "/expired' expired since " + expiredDate,
+			"↳ '" + abs + "/future' expires in " + futureDate,
 		}, "--path", base, "--list")
 		assertNotContains(t, out, "/none'")
 		for _, sv := range []string{expired, future, none} {
@@ -137,7 +137,7 @@ func TestBTRFS(t *testing.T) {
 	t.Run("prune-non-expired", func(t *testing.T) {
 		sv := newSubvolume(t, filepath.Join(newBtrfsBase(t), "sv"))
 		setExpire(t, sv, futureDate)
-		out := assertRun(t, RC_OK, []string{"pruning expired data in '" + sv + "'"}, "--path", sv, "--prune")
+		out := assertRun(t, RC_OK, []string{"pruning expired data"}, "--path", sv, "--prune")
 		assertNotContains(t, out, "expired since")
 		assertExists(t, sv)
 	})
@@ -145,7 +145,8 @@ func TestBTRFS(t *testing.T) {
 	t.Run("prune-one-expired", func(t *testing.T) {
 		sv := newSubvolume(t, filepath.Join(newBtrfsBase(t), "sv"))
 		setExpire(t, sv, expiredDate)
-		assertRun(t, RC_OK, []string{"↳ Subvolume '" + testName(t) + "/sv' expired since " + expiredDate},
+		abs, _ := filepath.Abs(sv)
+		assertRun(t, RC_OK, []string{"↳ '" + abs + "' expired since " + expiredDate},
 			"--path", sv, "--prune")
 		assertGone(t, sv)
 	})
@@ -156,7 +157,8 @@ func TestBTRFS(t *testing.T) {
 		future := newSubvolume(t, filepath.Join(parent, "future"))
 		setExpire(t, expired, expiredDate)
 		setExpire(t, future, futureDate)
-		out := assertRun(t, RC_OK, []string{"↳ Subvolume '" + testName(t) + "/parent/expired' expired since " + expiredDate},
+		abs, _ := filepath.Abs(expired)
+		out := assertRun(t, RC_OK, []string{"↳ '" + abs + "' expired since " + expiredDate},
 			"--path", parent, "--prune")
 		assertNotContains(t, out, "/future'")
 		assertGone(t, expired)
@@ -172,7 +174,7 @@ func TestBTRFS(t *testing.T) {
 		if err := os.Mkdir(dir, 0755); err != nil {
 			t.Fatal(err)
 		}
-		out := assertRun(t, RC_OK, []string{"pruning expired data in '" + dir + "'"}, "--path", dir, "--prune")
+		out := assertRun(t, RC_OK, []string{"pruning expired data"}, "--path", dir, "--prune")
 		assertNotContains(t, out, "expired since")
 		assertExists(t, sv)
 	})
@@ -198,7 +200,8 @@ func TestBTRFS(t *testing.T) {
 			}
 		})
 		setExpire(t, snapshot, expiredDate)
-		assertRun(t, RC_OK, []string{"↳ Subvolume '" + testName(t) + "/snapshot' expired since " + expiredDate},
+		abs, _ := filepath.Abs(base)
+		assertRun(t, RC_OK, []string{"↳ '" + abs + "/snapshot' expired since " + expiredDate},
 			"--path", base, "--prune")
 		assertGone(t, snapshot)
 		assertExists(t, source)
@@ -236,7 +239,8 @@ func TestBTRFS(t *testing.T) {
 		sh(t, "mount", "-o", "subvol="+testName(t)+"/vol", mounts[0].Source, mnt)
 		t.Cleanup(func() { sh(t, "umount", mnt) })
 
-		out := assertRun(t, RC_OK, []string{"↳ Subvolume '" + testName(t) + "/vol/expired' expired since " + expiredDate},
+		abs, _ := filepath.Abs(base)
+		out := assertRun(t, RC_OK, []string{"↳ '" + abs + "/mnt/expired' expired since " + expiredDate},
 			"--path", mnt, "--prune")
 		assertNotContains(t, out, "sibling")
 		assertGone(t, expired)
