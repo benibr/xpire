@@ -10,26 +10,32 @@ import (
 // plugin must implement.
 
 type FsPluginApi interface {
-	// InitLogger gets called right after plugin initialisation
+	// InitLogger gets called right after plugin initialization
 	// to pass the current logrus instance point to the plugin
 	InitLogger(l *logrus.Logger) error
 
-	// SetExpireDate is used to set the expiry date on a given
-	// file/folder/subset. The function must overwrite the date
-	// without asking in case it's already set.
-	// Permission checks must be done in plugin.
+	// SetExpireDate is used to set the expire date on a given
+	// file/folder/subset.
+	// Must overwrite the date without asking in case it's already set.
+	// Returns only errors
 	SetExpireDate(t time.Time, path string) error
 
-	// UnsetExpireDate is used to remove a expiry date on a given
+	// UnsetExpireDate is used to remove a expire date on a given
 	// file/folder/subset.
+	// Returns only errors
 	UnsetExpireDate(path string) error
 
 	// PruneExpired cleans up all expired files/folders/subsets
-	// under the given path recursivly without any further user interaction.
-	// Permission checks must be done in plugin.
-	PruneExpired(path string) ([]string, error)
+	// Gets a map of absolute paths & their expiration dates.
+	// xpire passes the return map from List to this function
+	// to ensure the users delete only what they could also see
+	// Must check if a path is expired or not
+	// Must check/handle permissions.
+	// Returns only errors.
+	PruneExpired(paths map[string]time.Time) error
 
-	// List all set expire dates that are currently set
+	// List all expire dates that are currently set
 	// regardless if they're reached or not
-	List(path string) ([]string, error)
+	// Returns a map of absolute paths with their expiration dates
+	List(path string) (map[string]time.Time, error)
 }

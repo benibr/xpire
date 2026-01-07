@@ -129,8 +129,9 @@ func TestBTRFSUsers(t *testing.T) {
 	t.Run("root-prunes-date-set-by-owner", func(t *testing.T) {
 		sv := newSubvolume(t, filepath.Join(newBtrfsBase(t), "sv"))
 		chown(t, sv, ownerUID, ownerGID)
+		abs, _ := filepath.Abs(sv)
 		assertRunAs(t, ownerUID, ownerGID, RC_OK, nil, "--path", sv, "--set", expiredDate)
-		assertRun(t, RC_OK, []string{"↳ Subvolume '" + testName(t) + "/sv' expired since " + expiredDate},
+		assertRun(t, RC_OK, []string{"↳ '" + abs + "' expired since " + expiredDate},
 			"--path", sv, "--prune")
 		assertGone(t, sv)
 	})

@@ -19,6 +19,7 @@ import (
 	"os"
 	"plugin"
 	"syscall"
+	"time"
 )
 
 func errorHandler(err error, rc int, msg string) {
@@ -70,4 +71,22 @@ func loadPlugin(pluginName string) (*plugin.Plugin, error) {
 		return nil, err
 	}
 	return plugin, nil
+}
+
+// prints the given map of paths and their expiration dates
+// optionally print only expired dates with printActive=false
+func printDates(data map[string]time.Time, printActive ...bool) {
+	pa := true
+	if len(printActive) > 0 {
+		pa = printActive[0]
+	}
+	for path, date := range data {
+		if date.Before(time.Now()) {
+			fmt.Printf("↳ '%s' expired since %s\n", path, date.Format(TimeFormat))
+		} else {
+			if pa {
+				fmt.Printf("↳ '%s' expires in %s\n", path, date.Format(TimeFormat))
+			}
+		}
+	}
 }

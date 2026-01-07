@@ -16,16 +16,17 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/dennwc/btrfs"
-	"github.com/moby/sys/mountinfo"
-	"github.com/pkg/xattr"
-	"github.com/sirupsen/logrus"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
 	"xpire/helpers"
 	"xpire/pluginapi"
+
+	"github.com/dennwc/btrfs"
+	"github.com/moby/sys/mountinfo"
+	"github.com/pkg/xattr"
+	"github.com/sirupsen/logrus"
 )
 
 const TimeFormat = time.DateTime
@@ -150,57 +151,26 @@ func (p BtrfsPlugin) SetExpireDate(t time.Time, path string) error {
 	return nil
 }
 
-func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
-	if !helpers.IsRoot() {
-		return nil, errors.New("btrfs plugin needs root permissions to list all subvolumes")
-	}
-	log.Info(fmt.Sprintf("pruning expired data in '%s'", path))
-
-	absPath, _ := helpers.CleanPath(path)
-
-	// next parent mountpoint of path is the btrfs filesystem we work on
-	mountPoint, err := findParentBtrfs(absPath)
-
-	b, err := btrfs.Open(mountPoint, false)
-	if err != nil {
-		return nil, fmt.Errorf("cannot open btrfs filesystem\n%w", err)
-	}
-
-	mountRoot, err := findMountRoot(mountPoint)
-	if err != nil {
-		return nil, fmt.Errorf("cannot find mounted btrfs subvolume\n%w", err)
-	}
-
-	subvols := findChildSubvolumes(absPath, mountPoint, mountRoot, b)
-	// FIXME: this return needs sorting so that parents are deleted last
-
-	// iterate over all subvolumes and delete them if their expire date is reached
-	for _, sv := range subvols {
-		fullPath := subvolumeFullPath(mountPoint, mountRoot, sv.Path)
-		log.Debug(fmt.Sprintf("Working on path '%s'", fullPath))
-		xattr, err := xattr.Get(fullPath, "user.expire")
-		if err != nil {
-			log.Debug(fmt.Errorf("cannot read expire xattr on '%s'\n\t%w", fullPath, err))
-			continue
-		}
-		t, err := time.Parse(TimeFormat, string(xattr))
-		if err != nil {
-			log.Warn(fmt.Errorf("cannot parse expire date format:\n\t%w", err))
-			continue
-		}
-		if t.Before(time.Now()) {
-			log.Info(fmt.Sprintf("↳ Subvolume '%s' expired since %s", sv.Path, t.Format(TimeFormat)))
-			if err := btrfs.DeleteSubVolume(fullPath); err != nil {
-				// Handle the error appropriately, e.g., log or return
-				log.Printf("failed to delete subvolume %s: %v", fullPath, err)
+func (p BtrfsPlugin) PruneExpired(paths map[string]time.Time) error {
+	log.Info("pruning expired data")
+	var deleteErrs []error
+	for path, date := range paths {
+		log.Debug(fmt.Sprintf("checking path='%s', date='%s'", path, date.Format(TimeFormat)))
+		absPath, _ := helpers.CleanPath(path)
+		if date.Before(time.Now()) {
+			log.Info(fmt.Sprintf("↳ '%s' expired since %s", absPath, date.Format(TimeFormat)))
+			if err := btrfs.DeleteSubVolume(absPath); err != nil {
+				log.Printf("failed to delete subvolume %s: %v", absPath, err)
+				deleteErrs = append(deleteErrs, fmt.Errorf("failed to delete subvolume '%s'\n%w", absPath, err))
 			}
 		}
 	}
-	// TODO: return list of deleted paths not yet implemented
-	return nil, nil
+	return errors.Join(deleteErrs...)
 }
 
-func (p BtrfsPlugin) List(path string) ([]string, error) {
+func (p BtrfsPlugin) List(path string) (map[string]time.Time, error) {
+	ret := make(map[string]time.Time)
+
 	if !helpers.IsRoot() {
 		return nil, errors.New("btrfs plugin needs root permissions to list all subvolumes")
 	}
@@ -237,14 +207,9 @@ func (p BtrfsPlugin) List(path string) ([]string, error) {
 			log.Warn(fmt.Errorf("cannot parse expire date format:\n\t%w", err))
 			continue
 		}
-		if t.Before(time.Now()) {
-			log.Info(fmt.Sprintf("↳ Subvolume '%s' expired since %s", sv.Path, t.Format(TimeFormat)))
-		} else {
-			log.Info(fmt.Sprintf("↳ Subvolume '%s' expires in %s", sv.Path, t.Format(TimeFormat)))
-		}
+		ret[fullPath] = t
 	}
-	// TODO: return list of paths not yet implemented
-	return nil, nil
+	return ret, nil
 }
 
 func main() {}
