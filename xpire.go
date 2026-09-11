@@ -15,11 +15,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/alexflint/go-arg"
-	"github.com/sirupsen/logrus"
 	"os"
 	"time"
 	"xpire/pluginapi"
+
+	"github.com/alexflint/go-arg"
+	"github.com/sirupsen/logrus"
 )
 
 // global const
