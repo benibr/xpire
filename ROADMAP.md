@@ -32,11 +32,11 @@
 - [ ] add --dry-run option
 - [ ] consitent error format
 - [ ] use /usr/lib/modules/6.16.8-arch3-1/build/include/uapi/linux/magic.h to autodetect filesystems
-- [ ] evaluate other logger
 - [ ] make output more readable
 - [ ] align log/error messages in all plugins
 
 ### version 0.4.x - testing
+
 - [ ] tests in containers
 - [ ] tests with multiple users
 - [ ] check if more tests are needed
@@ -50,6 +50,11 @@
 - [ ] AUR
 - [ ] .rpm
 - [ ] .deb
+
+### version 0.4.z - developing
+
+- [ ] evaluate other logger
+- [ ] prune should return list of deleted paths and xpire shold print them
 
 ### version 0.5 - basic plugin
 
