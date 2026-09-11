@@ -37,8 +37,8 @@ var log = logrus.New()
 var args struct {
 	SetExpireDate   string `arg:"-s,--set"`
 	UnsetExpireDate bool   `arg:"-u,--unset"`
-	Plugin          string `arg:"-p,--plugin"`
-	Path            string
+	Plugin          string `arg:"-P,--plugin"`
+	Path            string `arg:"-p,--path"`
 	Prune           bool
 	Loglevel        string `arg:"-d,--loglevel"`
 	List            bool   `arg:"-l,--list"`
