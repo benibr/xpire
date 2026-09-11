@@ -25,23 +25,28 @@
 
 - [x] zfs plugin
 
-### version 0.4 - usability
+### version 0.4
 
 - [x] add --list option
 - [x] add --unset option
+- [x] fix existing tests (agent)
+- [x] split tests per plugin (agent)
+- [x] add unit tests (agent)
+- [x] tests with multiple users. exec as nobody (agent)
+- [ ] check if more tests are needed (agent)
+- [ ] add gitlab pipeline on PRs (agent)
+- [ ] protect main branch PRs (agent)
+
+### version 0.5 - usability
+
 - [ ] add --dry-run option
 - [ ] consitent error format
 - [ ] use /usr/lib/modules/6.16.8-arch3-1/build/include/uapi/linux/magic.h to autodetect filesystems
-- [ ] evaluate other logger
 - [ ] make output more readable
+  - [ ] only use absolute paths in output
 - [ ] align log/error messages in all plugins
 
-### version 0.4.x - testing
-- [ ] tests in containers
-- [ ] tests with multiple users
-- [ ] check if more tests are needed
-
-### version 0.4.y - packaging
+### version 0.5.y - packaging
 
 - Allow plugin path to be $CWD or /usr
 - [ ] Make install
@@ -50,6 +55,12 @@
 - [ ] AUR
 - [ ] .rpm
 - [ ] .deb
+- [ ] github pipeline to build all packages (agent)
+
+### version 0.5.z - developing
+
+- [ ] evaluate other logger
+- [ ] prune should return list of deleted paths and xpire shold print them
 
 ### version 0.5 - basic plugin
 
@@ -65,7 +76,6 @@ Add some excentric stuff, implement one of the following
 
 ### version 1.0 - stability
 
-- [ ] github pipeline to build all packages
 - [ ] remove all #FIXMEs
 
 
