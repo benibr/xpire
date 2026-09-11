@@ -12,7 +12,7 @@ MAIN_OUT = xpire
 PLUGIN_DIR = filesystems
 PLUGIN_SRC = $(PLUGIN_DIR)/*/*.go
 
-.PHONY: all build plugins test clean
+.PHONY: all build plugins test clean test-btrfs test-zfs
 
 # Default target
 all: plugins build
@@ -21,32 +21,47 @@ all: plugins build
 plugins:
 	for src in $(PLUGIN_SRC); do \
 		$(GOBUILD) -buildmode=plugin -o $(PLUGIN_DIR)/$$(basename $$src .go)/$$(basename $$src .go).so $$src; \
-		done
+	done
 
 # Clean up
 clean:
 	$(GOCLEAN)
 	rm -f $(MAIN_OUT) $(PLUGIN_DIR)/*/*.so
 
-## Build the main Go application
+# Build the main Go application
 build:
 	$(GOBUILD) -o $(MAIN_OUT) .
 
+# Run all plugin tests
 test: test-setup test-all test-teardown
 
+test-all:
+	@echo "running all tests"
+	$(GOTEST) || { \
+		$(MAKE) test-teardown; \
+		exit 1; \
+	}
+
+# Run only BTRFS plugin tests
+test-btrfs: test-setup test-btrfs-run test-teardown
+
+test-btrfs-run:
+	@echo "running btrfs tests"
+	$(GOTEST) -run TestBTRFS
+
+# Run only ZFS plugin tests
+test-zfs: test-setup test-zfs-run test-teardown
+
+test-zfs-run:
+	@echo "running zfs tests"
+	$(GOTEST) -run TestZFS
+
 test-setup:
-	@echo "setup testing environment"
+	@echo "setting up testing environment"
 	@cd tests \
 		&& ./setup.sh > /dev/null
 
-test-all:
-	@echo "running tests"
-		@$(GOTEST) || { \
-			$(MAKE) test-teardown; \
-			exit 1; \
-			}
-
 test-teardown:
-	@echo "teardown testing environment"
-		@cd tests \
-			&& ./teardown.sh
+	@echo "tearing down testing environment"
+	@cd tests \
+		&& ./teardown.sh
