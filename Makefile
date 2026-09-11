@@ -43,16 +43,16 @@ test-all:
 	}
 
 # Run only BTRFS plugin tests
-test-btrfs: test-setup test-btrfs-run test-teardown
+test-btrfs: test-setup-btrfs test-run-btrfs test-teardown-btrfs
 
-test-btrfs-run:
+test-run-btrfs:
 	@echo "running btrfs tests"
 	$(GOTEST) -run TestBTRFS
 
 # Run only ZFS plugin tests
-test-zfs: test-setup test-zfs-run test-teardown
+test-zfs: test-setup-zfs test-run-zfs test-teardown-zfs
 
-test-zfs-run:
+test-run-zfs:
 	@echo "running zfs tests"
 	$(GOTEST) -run TestZFS
 
@@ -65,3 +65,23 @@ test-teardown:
 	@echo "tearing down testing environment"
 	@cd tests \
 		&& ./teardown.sh
+
+test-setup-btrfs:
+	@echo "setting up btrfs test environment"
+	@cd tests \
+		&& ./setup-btrfs.sh > /dev/null
+
+test-teardown-btrfs:
+	@echo "tearing down btrfs test environment"
+	@cd tests \
+		&& ./teardown-btrfs.sh
+
+test-setup-zfs:
+	@echo "setting up zfs test environment"
+	@cd tests \
+		&& ./setup-zfs.sh > /dev/null
+
+test-teardown-zfs:
+	@echo "tearing down zfs test environment"
+	@cd tests \
+		&& ./teardown-zfs.sh
