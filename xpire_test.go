@@ -30,47 +30,47 @@ func TestBTRFS(t *testing.T) {
 		{
 			name: "list",
 			args: []string{"--path", "./tests/mnt/btrfs/subvolume01", "--list"},
-			want: "level=info msg=Detected filesystem: btrfs\nlevel=info msg=searching for all expire dates in '/home/bbraunger/Workspace/private/xpire/tests/mnt/btrfs/subvolume01'\n",
+			want: "level=info msg=searching for all expire dates in '/home/bbraunger/Workspace/private/xpire/tests/mnt/btrfs/subvolume01'\n",
 		},
 		{
 			name: "prune-non-expired",
 			args: []string{"--path", "./tests/mnt/btrfs/subvolume01", "--prune"},
-			want: "level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume01'\n",
+			want: "level=info msg=pruning expired data in './tests/mnt/btrfs/subvolume01'\n",
 		},
 		{
 			name: "set-expire-date",
 			args: []string{"--path", "./tests/mnt/btrfs/subvolume02", "--set", "2002-01-01 15:00:00"},
-			want: "level=info msg=Detected filesystem: btrfs\nlevel=info msg=setting expiration date on './tests/mnt/btrfs/subvolume02' to 2002-01-01 15:00:00\n",
+			want: "level=info msg=setting expiration date on './tests/mnt/btrfs/subvolume02' to 2002-01-01 15:00:00\n",
 		},
 		{
 			name: "unset-non-existing-expire-date",
 			args: []string{"--path", "./tests/mnt/btrfs/subvolume03/subvolume31", "--unset"},
-			want: "level=info msg=Detected filesystem: btrfs\nlevel=info msg=unsetting expiration date on './tests/mnt/btrfs/subvolume03/subvolume31'\n",
+			want: "level=info msg=unsetting expiration date on './tests/mnt/btrfs/subvolume03/subvolume31'\n",
 		},
 		{
 			name: "prune-one-expired",
 			args: []string{"--path", "./tests/mnt/btrfs/subvolume02", "--prune"},
-			want: "level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume02'\nlevel=info msg=↳ Subvolume 'subvolume02' expired since 2002-01-01 15:00:00\n",
+			want: "level=info msg=pruning expired data in './tests/mnt/btrfs/subvolume02'\nlevel=info msg=↳ Subvolume 'subvolume02' expired since 2002-01-01 15:00:00\n",
 		},
 		{
 			name: "prune-one-sub-subvolume-expired",
 			args: []string{"--path", "./tests/mnt/btrfs/subvolume03", "--prune"},
-			want: "level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume03'\nlevel=info msg=↳ Subvolume 'subvolume03/subvolume30' expired since 2002-01-01 15:00:00\n",
+			want: "level=info msg=pruning expired data in './tests/mnt/btrfs/subvolume03'\nlevel=info msg=↳ Subvolume 'subvolume03/subvolume30' expired since 2002-01-01 15:00:00\n",
 		},
 		{
 			name: "prune-on-non-subvolume-directory",
 			args: []string{"--path", "./tests/mnt/btrfs/dir", "--prune"},
-			want: "level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/dir'\n",
+			want: "level=info msg=pruning expired data in './tests/mnt/btrfs/dir'\n",
 		},
 		{
 			name: "prune-non-expired-mounted-under-different-name",
 			args: []string{"--path", "./tests/mnt/btrfs/subvolume-mount", "--prune"},
-			want: "level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/subvolume-mount'\n",
+			want: "level=info msg=pruning expired data in './tests/mnt/btrfs/subvolume-mount'\n",
 		},
 		{
 			name: "prune-wrong-time-format",
 			args: []string{"--path", "./tests/mnt/btrfs/wrong-time-format", "--prune"},
-			want: "level=info msg=Detected filesystem: btrfs\nlevel=info msg=pruning expired data in './tests/mnt/btrfs/wrong-time-format'\nlevel=warning msg=cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\"\n",
+			want: "level=info msg=pruning expired data in './tests/mnt/btrfs/wrong-time-format'\nlevel=warning msg=cannot parse expire date format:\n\tparsing time \"205-02 111\" as \"2006-01-02 15:04:05\": cannot parse \"205-02 111\" as \"2006\"\n",
 		},
 	}
 
