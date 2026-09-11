@@ -25,38 +25,23 @@
 
 - [x] zfs plugin
 
-### version 0.4
+### version 0.4 - usability
 
 - [x] add --list option
 - [x] add --unset option
 - [ ] add --dry-run option
+- [ ] consitent error format
+- [ ] use /usr/lib/modules/6.16.8-arch3-1/build/include/uapi/linux/magic.h to autodetect filesystems
+- [ ] evaluate other logger
+- [ ] make output more readable
+- [ ] align log/error messages in all plugins
+
+### version 0.4.x - testing
 - [ ] tests in containers
 - [ ] tests with multiple users
 - [ ] check if more tests are needed
 
-### version 0.5
-
-- [ ] posix plugin
-- [ ] consitent error format
-
-## version 0.6
-
-- [x] Changelog workflow not depending on Github
-- [ ] use /usr/lib/modules/6.16.8-arch3-1/build/include/uapi/linux/magic.h to autodetect filesystems
-
-## version 0.7
-
-- [ ] evaluate other logger
-- [ ] make output mor readable
-
-## version 0.8 - going weird
-
-- [ ] check if any kind of S3 plugin is feasible
-- [ ] daos plugin
-OR
-- [ ] gpfs plugin
-
-### version 0.9
+### version 0.4.y - packaging
 
 - Allow plugin path to be $CWD or /usr
 - [ ] Make install
@@ -66,12 +51,27 @@ OR
 - [ ] .rpm
 - [ ] .deb
 
-### version 1.0
+### version 0.5 - basic plugin
+
+- [ ] posix plugin
+- [ ] LVM plugin
+
+## version 0.6 - going weird
+Add some excentric stuff, implement one of the following
+
+- [ ] check if any kind of S3 plugin is feasible
+- [ ] daos plugin
+- [ ] gpfs plugin
+
+### version 1.0 - stability
 
 - [ ] github pipeline to build all packages
 - [ ] remove all #FIXMEs
-- [ ] align log/error messages in all plugins
+
 
 ### Future Ideas
 
-- [ ] database plugin?
+Just a collection of ideas that are not planned for impelmentation
+
+- database plugin to delete data
+- database plugin to store expiration

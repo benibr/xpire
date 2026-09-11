@@ -1,36 +1,31 @@
 # xpire - a tool to manage data expiration
 
-xpire uses extended attributes (xattrs) of filesystems to store information
-about when data should expire.
-It aims to provide a simple to use interface for setting and changing these
-dates and pruning expired files.
+xpire is a CLI tool that can store information about when data should expire and delete the data accordingly.
+It aims to be a simple tool usable by humans or in scripts to handle deletion of obsolete data.
+xpire itself is stateless, no daemon or database backend is required, all information in stored in the filesystems themselfs.
 
 While the xpire binary is only the user interface,
 the actual work is done by plugins which should enable
 xpire to make use of filesystem specific structures like
 subvolumes or snapshots to prevent expensive tree walks
 during pruning.
-
-xpire uses the extended attribute `user.expire="YYYY-MM-DD HH:MM:SS"`.
+Each plugin can decide where the expiry date is stored but the most common case
+is to use the extended attribute `user.expire="YYYY-MM-DD HH:MM:SS"`.
 
 ## Usage
 
-Currently two main functionalities are provided: **setting a expire date**
-and **pruneing all expired files**.
-Be arware that you might need root priviledges.
+```
+# set a expiration date
+xpire --path /data/foo/ --set "2023-05-01 15:00:00"
 
-```sh
-$ xpire --path /path/to/old/data --set "2023-05-01 15:00:00"
-INFO Detected filesystem: btrfs
-INFO setting expiration date on '/path/to/old/data' to 2023-05-01 15:00:00
+# list all expiration dates
+xpire --path /data --list
+
+# recursively prune all expired data
+xpire --path /data --prune
 ```
 
-```sh
-$ xpire --path /path --prune
-INFO Detected filesystem: btrfs
-INFO pruning all expired data in '/path'
-INFO ↳ '/path/to/old/data' expired since 2023-05-01 15:00:00
-```
+Be arware that you might need root priviledges depending on the plugin used.
 
 ## Building from source
 
@@ -42,6 +37,8 @@ Until now plugins for the following filesystems are provided by this repository:
 
 * `btrfs`
 * `zfs`
+
+See [./filesystems/](./filesystems/) for details about them.
 
 ## Development status
 
