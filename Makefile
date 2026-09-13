@@ -10,7 +10,7 @@ MAIN_OUT = xpire
 
 # Define the plugin directory and plugin output
 PLUGIN_DIR = filesystems
-PLUGIN_SRC = $(PLUGIN_DIR)/*/*.go
+PLUGIN_SRC = $(filter-out %_test.go,$(wildcard $(PLUGIN_DIR)/*/*.go))
 
 .PHONY: all build plugins test test-install clean test-btrfs test-zfs
 
