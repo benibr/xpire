@@ -12,7 +12,7 @@ MAIN_OUT = xpire
 PLUGIN_DIR = filesystems
 PLUGIN_SRC = $(PLUGIN_DIR)/*/*.go
 
-.PHONY: all build plugins test clean test-btrfs test-zfs
+.PHONY: all build plugins test test-install clean test-btrfs test-zfs
 
 # Default target
 all: plugins build
@@ -27,10 +27,19 @@ plugins:
 clean:
 	$(GOCLEAN)
 	rm -f $(MAIN_OUT) $(PLUGIN_DIR)/*/*.so
+	rm -rf tests/bin
 
 # Build the main Go application
 build:
 	$(GOBUILD) -o $(MAIN_OUT) .
+
+# Copy xpire and plugins into a test directory, because the users of the
+# integration tests cannot access a checkout in a private home directory
+test-install: build plugins
+	mkdir -p tests/bin
+	cp $(MAIN_OUT) tests/bin/
+	cp --parents $(PLUGIN_DIR)/*/*.so tests/bin/
+	chmod -R a+rX tests/bin
 
 # Run all plugin tests
 test: test-setup test-all test-teardown
