@@ -31,7 +31,8 @@ plugins:
 clean:
 	$(GOCLEAN)
 	rm -f $(MAIN_OUT) $(PLUGIN_DIR)/*/*.so
-	rm -rf $(XPIRE_TEST_DIR)/bin
+	rm -rf $(XPIRE_TEST_DIR)/
+	rm -rf tests/mnt tests/*.img
 
 # Build the main Go application
 build:
