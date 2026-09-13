@@ -19,6 +19,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -30,6 +31,12 @@ const (
 	futureDate  = "2099-01-01 15:00:00"
 	badDate     = "205-02 111"
 )
+
+// testMount returns the mountpoint of a test filesystem created by the
+// setup scripts in the test directory
+func testMount(fs string) string {
+	return filepath.Join(testDir(), "mnt", fs)
+}
 
 func requireRoot(t *testing.T) {
 	t.Helper()

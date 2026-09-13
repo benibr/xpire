@@ -26,7 +26,7 @@ import (
 // pool and mountpoint created by tests/setup-zfs.sh
 const zfsPool = "xpool"
 
-var zfsMount = absPath("tests/mnt/zfs")
+var zfsMount = testMount("zfs")
 
 func requireZFS(t *testing.T) {
 	t.Helper()

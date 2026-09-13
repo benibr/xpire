@@ -25,7 +25,7 @@ import (
 )
 
 // mountpoint of the btrfs filesystem created by tests/setup-btrfs.sh
-var btrfsMount = absPath("tests/mnt/btrfs")
+var btrfsMount = testMount("btrfs")
 
 func requireBtrfs(t *testing.T) {
 	t.Helper()
