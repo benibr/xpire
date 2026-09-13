@@ -56,7 +56,7 @@ func getFsType(path string) (string, error) {
 	}
 	fsType, ok := supportedFilesystems[stat.Type]
 	if !ok {
-		return "", errors.New(fmt.Sprintf("Filesystem not supported: %x.\nTry specifying the correct plugin explicitly with -p", stat.Type))
+		return "", errors.New(fmt.Sprintf("Filesystem not supported: %x.\nTry specifying the correct plugin explicitly with -P", stat.Type))
 	}
 	log.Debug("Detected filesystem: ", fsType)
 	return fsType, nil
