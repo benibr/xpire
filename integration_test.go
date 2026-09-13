@@ -19,8 +19,11 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"syscall"
 	"testing"
 
 	"github.com/pkg/xattr"
@@ -36,6 +39,37 @@ const (
 // setup scripts in the test directory
 func testMount(fs string) string {
 	return filepath.Join(testDir(), "mnt", fs)
+}
+
+// unprivileged users for tests, the owner is nobody and the other user
+// only exists as uid without an account
+var (
+	ownerUID, ownerGID = lookupUser("nobody", 65534)
+	otherUID, otherGID = uint32(65533), uint32(65533)
+)
+
+func lookupUser(name string, fallback uint32) (uint32, uint32) {
+	u, err := user.Lookup(name)
+	if err != nil {
+		return fallback, fallback
+	}
+	uid, uidErr := strconv.ParseUint(u.Uid, 10, 32)
+	gid, gidErr := strconv.ParseUint(u.Gid, 10, 32)
+	if uidErr != nil || gidErr != nil {
+		return fallback, fallback
+	}
+	return uint32(uid), uint32(gid)
+}
+
+// requireUserAccess skips the test if the given user cannot access path,
+// e.g. because the test filesystems are below a private home directory
+func requireUserAccess(t *testing.T, uid, gid uint32, path string) {
+	t.Helper()
+	cmd := exec.Command("test", "-x", path)
+	cmd.SysProcAttr = &syscall.SysProcAttr{Credential: &syscall.Credential{Uid: uid, Gid: gid}}
+	if err := cmd.Run(); err != nil {
+		t.Skipf("uid %d cannot access '%s', run with XPIRE_TEST_DIR outside of /root", uid, path)
+	}
 }
 
 func requireRoot(t *testing.T) {
@@ -103,6 +137,18 @@ func assertNotContains(t *testing.T, out, unwanted string) {
 func assertRun(t *testing.T, wantRC int, wantOutput []string, args ...string) string {
 	t.Helper()
 	out, rc := runXpire(t, args...)
+	return checkRun(t, out, rc, wantRC, wantOutput, args)
+}
+
+// assertRunAs works like assertRun but runs xpire as the given user
+func assertRunAs(t *testing.T, uid, gid uint32, wantRC int, wantOutput []string, args ...string) string {
+	t.Helper()
+	out, rc := runXpireAs(t, uid, gid, args...)
+	return checkRun(t, out, rc, wantRC, wantOutput, args)
+}
+
+func checkRun(t *testing.T, out string, rc int, wantRC int, wantOutput []string, args []string) string {
+	t.Helper()
 	if rc != wantRC {
 		t.Errorf("xpire %s: want exit code %d, got %d\n%s", strings.Join(args, " "), wantRC, rc, out)
 	}
