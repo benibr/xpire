@@ -12,7 +12,7 @@ MAIN_OUT = xpire
 PLUGIN_DIR = filesystems
 PLUGIN_SRC = $(filter-out %_test.go,$(wildcard $(PLUGIN_DIR)/*/*.go))
 
-.PHONY: all build plugins test test-install clean test-btrfs test-zfs
+.PHONY: all build plugins test test-unit test-install clean test-btrfs test-zfs
 
 # Default target
 all: plugins build
@@ -41,10 +41,15 @@ test-install: build plugins
 	cp --parents $(PLUGIN_DIR)/*/*.so tests/bin/
 	chmod -R a+rX tests/bin
 
-# Run all plugin tests
-test: test-setup test-all test-teardown
+# Run all tests
+test: test-unit test-setup test-integration test-teardown
 
-test-all: test-install
+# Run unit tests, no root permissions or test filesystems needed
+test-unit:
+	@echo "running unit tests"
+	$(GOTEST) ./...
+
+test-integration: test-install
 	@echo "running all tests"
 	$(GOTEST) -tags integration . || { \
 		$(MAKE) test-teardown; \
