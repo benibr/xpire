@@ -61,6 +61,11 @@ func parseZfsGetOutput(output string) string {
 	return fields[2]
 }
 
+// check if a dataset mountpoint lies under the given path
+func mountpointUnder(mountpoint, absPath string) bool {
+	return strings.HasPrefix(mountpoint, absPath)
+}
+
 // ---- mandatory functions called by fsexpire
 
 func (p ZfsPlugin) InitLogger(l *logrus.Logger) error {
@@ -148,7 +153,7 @@ func (p ZfsPlugin) PruneExpired(path string) ([]string, error) {
 	}
 	for _, ds := range datasets {
 		mountpoint, _ := zfsGet(ds.Name, "mountpoint")
-		if !strings.HasPrefix(mountpoint, absPath) {
+		if !mountpointUnder(mountpoint, absPath) {
 			continue
 		}
 		log.Debug(fmt.Sprintf("Checking path '%s'", mountpoint))
@@ -186,7 +191,7 @@ func (ZfsPlugin) List(path string) ([]string, error) {
 	}
 	for _, ds := range datasets {
 		mountpoint, _ := zfsGet(ds.Name, "mountpoint")
-		if !strings.HasPrefix(mountpoint, absPath) {
+		if !mountpointUnder(mountpoint, absPath) {
 			continue
 		}
 		log.Debug(fmt.Sprintf("Checking path '%s'", mountpoint))
