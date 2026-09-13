@@ -20,6 +20,7 @@ import (
 	"github.com/moby/sys/mountinfo"
 	"github.com/pkg/xattr"
 	"github.com/sirupsen/logrus"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -47,10 +48,57 @@ func findParentBtrfs(path string) (string, error) {
 	return mountPoint, nil
 }
 
-func findChildSubvolumes(absPath string, mountPoint string, b *btrfs.FS) []btrfs.SubvolInfo {
+// findMountRoot returns the "mount root": the path of the subvolume that is
+// mounted at mountPoint, relative to the top level subvolume of the btrfs
+// filesystem. A btrfs filesystem can be mounted as a whole or with
+// '-o subvol=<path>', in which case only that subvolume is visible below
+// mountPoint:
+//
+//	mount /dev/sdx /mnt                        -> ""
+//	mount -o subvol=subvolume01 /dev/sdx /mnt  -> "subvolume01"
+//
+// btrfs itself always names subvolumes relative to the top level subvolume
+// (e.g. in ListSubvolumes), so the mount root is the offset needed to
+// translate between those names and paths in the mounted directory tree,
+// see subvolumeRelPath and subvolumeFullPath.
+func findMountRoot(mountPoint string) (string, error) {
+	mounts, err := mountinfo.GetMounts(mountinfo.SingleEntryFilter(mountPoint))
+	if err != nil {
+		return "", err
+	}
+	if len(mounts) == 0 {
+		return "", fmt.Errorf("no mount found at '%s'", mountPoint)
+	}
+	return strings.Trim(mounts[len(mounts)-1].Root, "/"), nil
+}
+
+// subvolumeRelPath translates a path in the mounted directory tree into the
+// subvolume path as btrfs names it: it strips the mountPoint and prepends
+// the mountRoot. It is the inverse of subvolumeFullPath.
+// Example with mountPoint '/mnt' and mountRoot 'subvolume01':
+//
+//	'/mnt/child' -> 'subvolume01/child'
+//	'/mnt'       -> 'subvolume01'
+func subvolumeRelPath(absPath string, mountPoint string, mountRoot string) string {
 	// remove mountpoint path from given path to guess the subvolume names
 	var relPath = strings.Replace(absPath, mountPoint, "", 1)
 	relPath = strings.TrimLeft(relPath, "/")
+	return strings.TrimLeft(path.Join(mountRoot, relPath), "/")
+}
+
+// subvolumeFullPath translates a subvolume path as btrfs names it into the
+// path in the mounted directory tree: it strips the mountRoot and prepends
+// the mountPoint. It is the inverse of subvolumeRelPath.
+// Example with mountPoint '/mnt' and mountRoot 'subvolume01':
+//
+//	'subvolume01/child' -> '/mnt/child'
+//	'subvolume01'       -> '/mnt'
+func subvolumeFullPath(mountPoint string, mountRoot string, svPath string) string {
+	return filepath.Join(mountPoint, strings.TrimPrefix(svPath, mountRoot))
+}
+
+func findChildSubvolumes(absPath string, mountPoint string, mountRoot string, b *btrfs.FS) []btrfs.SubvolInfo {
+	relPath := subvolumeRelPath(absPath, mountPoint, mountRoot)
 
 	subvols, _ := b.ListSubvolumes(func(svi btrfs.SubvolInfo) bool {
 		if svi.RootID == 5 {
@@ -118,11 +166,16 @@ func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 		return nil, fmt.Errorf("cannot open btrfs filesystem\n%w", err)
 	}
 
-	subvols := findChildSubvolumes(absPath, mountPoint, b)
+	mountRoot, err := findMountRoot(mountPoint)
+	if err != nil {
+		return nil, fmt.Errorf("cannot find mounted btrfs subvolume\n%w", err)
+	}
+
+	subvols := findChildSubvolumes(absPath, mountPoint, mountRoot, b)
 
 	// iterate over all subvolumes and delete them if their expire date is reached
 	for _, sv := range subvols {
-		fullPath := filepath.Join(mountPoint, sv.Path)
+		fullPath := subvolumeFullPath(mountPoint, mountRoot, sv.Path)
 		log.Debug(fmt.Sprintf("Working on path '%s'", fullPath))
 		xattr, err := xattr.Get(fullPath, "user.expire")
 		if err != nil {
@@ -161,12 +214,17 @@ func (p BtrfsPlugin) List(path string) ([]string, error) {
 		return nil, fmt.Errorf("cannot open btrfs filesystem\n%w", err)
 	}
 
-	subvols := findChildSubvolumes(absPath, mountPoint, b)
+	mountRoot, err := findMountRoot(mountPoint)
+	if err != nil {
+		return nil, fmt.Errorf("cannot find mounted btrfs subvolume\n%w", err)
+	}
+
+	subvols := findChildSubvolumes(absPath, mountPoint, mountRoot, b)
 
 	// iterate over all subvolumes and show their expiration date
 	for _, sv := range subvols {
 		//FIXME: isn't this the same as absPath?
-		fullPath := filepath.Join(mountPoint, sv.Path)
+		fullPath := subvolumeFullPath(mountPoint, mountRoot, sv.Path)
 		log.Debug(fmt.Sprintf("Working on path '%s'", fullPath))
 		xattr, err := xattr.Get(fullPath, "user.expire")
 		if err != nil {
