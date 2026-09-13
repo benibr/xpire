@@ -48,13 +48,17 @@ func zfsGet(dataset, property string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return parseZfsGetOutput(string(output)), nil
+}
 
-	fields := strings.Split(strings.TrimSpace(string(output)), "\t")
+// return the value column of the output of 'zfs get -H'
+func parseZfsGetOutput(output string) string {
+	fields := strings.Split(strings.TrimSpace(output), "\t")
 	if len(fields) < 3 {
-		return "", nil
+		return ""
 	}
 
-	return fields[2], nil
+	return fields[2]
 }
 
 // ---- mandatory functions called by fsexpire
