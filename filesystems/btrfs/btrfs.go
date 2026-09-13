@@ -57,13 +57,14 @@ func findChildSubvolumes(absPath string, mountPoint string, b *btrfs.FS) []btrfs
 			log.Debug("Refusing to work on btrfs <FS_TREE>")
 			return false
 		}
-		// return only subvolumes that have the prefix of the given path
-		if strings.HasPrefix(svi.Path, relPath) {
-			return true
-		}
-		return false
+		return subvolumeUnder(svi.Path, relPath)
 	})
 	return subvols
+}
+
+// return only subvolumes that have the prefix of the given path
+func subvolumeUnder(svPath string, relPath string) bool {
+	return strings.HasPrefix(svPath, relPath)
 }
 
 // ---- mandatory functions called by fsexpire
