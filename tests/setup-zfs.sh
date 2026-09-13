@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")"
+DIR="${XPIRE_TEST_DIR:-$PWD}"
 
 if ! command -v zpool >/dev/null; then
   echo "zpool not found, skipping ZFS setup" >&2
@@ -16,7 +17,8 @@ echo "#######"
 echo "# ZFS #"
 echo "#######"
 # prepare zfs
-mkdir -p ./mnt/zfs/
-rm -f zfs.img
-truncate --size 5G zfs.img
-zpool create xpool -m $(readlink -f ./mnt/zfs) ./zfs.img -f
+mkdir -p "$DIR/mnt/zfs"
+chmod 755 "$DIR" "$DIR/mnt"
+rm -f "$DIR/zfs.img"
+truncate --size 5G "$DIR/zfs.img"
+zpool create xpool -m "$(readlink -f "$DIR/mnt/zfs")" "$DIR/zfs.img" -f
