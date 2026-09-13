@@ -24,7 +24,7 @@ all: plugins build
 # Build the Go plugin(s)
 plugins:
 	for src in $(PLUGIN_SRC); do \
-		$(GOBUILD) -buildmode=plugin -o $(PLUGIN_DIR)/$$(basename $$src .go)/$$(basename $$src .go).so $$src; \
+		$(GOBUILD) -buildmode=plugin -o $(PLUGIN_DIR)/$$(basename $$src .go)/$$(basename $$src .go).so $$src || exit 1; \
 	done
 
 # Clean up
