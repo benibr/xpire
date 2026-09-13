@@ -2,6 +2,11 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+if ! command -v zpool >/dev/null; then
+  echo "zpool not found, skipping ZFS setup" >&2
+  exit 0
+fi
+
 echo "#######"
 echo "# ZFS #"
 echo "#######"
