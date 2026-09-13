@@ -63,7 +63,10 @@ func parseZfsGetOutput(output string) string {
 
 // check if a dataset mountpoint lies under the given path
 func mountpointUnder(mountpoint, absPath string) bool {
-	return strings.HasPrefix(mountpoint, absPath)
+	if mountpoint == absPath {
+		return true
+	}
+	return strings.HasPrefix(mountpoint, strings.TrimSuffix(absPath, "/")+"/")
 }
 
 // ---- mandatory functions called by fsexpire
