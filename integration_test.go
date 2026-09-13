@@ -68,7 +68,7 @@ func requireUserAccess(t *testing.T, uid, gid uint32, path string) {
 	cmd := exec.Command("test", "-x", path)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Credential: &syscall.Credential{Uid: uid, Gid: gid}}
 	if err := cmd.Run(); err != nil {
-		t.Skipf("uid %d cannot access '%s', run with XPIRE_TEST_DIR outside of /root", uid, path)
+		t.Skipf("uid %d cannot access '%s', run with XPIRE_TEST_DIR set to a accessible directory", uid, path)
 	}
 }
 
