@@ -56,14 +56,20 @@ test-btrfs: test-setup-btrfs test-run-btrfs test-teardown-btrfs
 
 test-run-btrfs: test-install
 	@echo "running btrfs tests"
-	$(GOTEST) -tags integration -run TestBTRFS .
+	$(GOTEST) -tags integration -run TestBTRFS . || { \
+		$(MAKE) test-teardown-btrfs; \
+		exit 1; \
+	}
 
 # Run only ZFS plugin tests
 test-zfs: test-setup-zfs test-run-zfs test-teardown-zfs
 
 test-run-zfs: test-install
 	@echo "running zfs tests"
-	$(GOTEST) -tags integration -run TestZFS .
+	$(GOTEST) -tags integration -run TestZFS . || { \
+		$(MAKE) test-teardown-zfs; \
+		exit 1; \
+	}
 
 test-setup:
 	@echo "setting up testing environment"
