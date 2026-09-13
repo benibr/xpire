@@ -7,6 +7,11 @@ if ! command -v zpool >/dev/null; then
   exit 0
 fi
 
+if zpool list xpool &>/dev/null; then
+  echo "pool 'xpool' already exists, run teardown-zfs.sh first" >&2
+  exit 1
+fi
+
 echo "#######"
 echo "# ZFS #"
 echo "#######"
