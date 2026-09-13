@@ -25,15 +25,20 @@ import (
 )
 
 // directory with xpire and plugins as installed by 'make test-install'
-var binDir = absPath("tests/bin")
+var binDir = filepath.Join(testDir(), "bin")
 
-// absPath returns the absolute path of a path relative to the repository
-func absPath(rel string) string {
-	abs, err := filepath.Abs(rel)
+// testDir returns the absolute path of XPIRE_TEST_DIR, or tests/ if it is
+// not set
+func testDir() string {
+	dir := os.Getenv("XPIRE_TEST_DIR")
+	if dir == "" {
+		dir = "tests"
+	}
+	dir, err := filepath.Abs(dir)
 	if err != nil {
 		panic(err)
 	}
-	return abs
+	return dir
 }
 
 func TestMain(m *testing.M) {
