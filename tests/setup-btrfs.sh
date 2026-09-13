@@ -2,6 +2,11 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+if ! command -v btrfs >/dev/null; then
+  echo "btrfs not found, skipping btrfs setup" >&2
+  exit 0
+fi
+
 echo "#########"
 echo "# BTRFS #"
 echo "#########"
