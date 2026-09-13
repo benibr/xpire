@@ -172,6 +172,7 @@ func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 	}
 
 	subvols := findChildSubvolumes(absPath, mountPoint, mountRoot, b)
+	// FIXME: this return needs sorting so that parents are deleted last
 
 	// iterate over all subvolumes and delete them if their expire date is reached
 	for _, sv := range subvols {
