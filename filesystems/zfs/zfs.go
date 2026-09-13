@@ -14,6 +14,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -154,6 +155,8 @@ func (p ZfsPlugin) PruneExpired(path string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to list ZFS datasets: %w", err)
 	}
+	// continue with other datasets if one cannot be destroyed
+	var destroyErrs []error
 	for _, ds := range datasets {
 		mountpoint, _ := zfsGet(ds.Name, "mountpoint")
 		if !mountpointUnder(mountpoint, absPath) {
@@ -174,14 +177,16 @@ func (p ZfsPlugin) PruneExpired(path string) ([]string, error) {
 			}
 			if t.Before(time.Now()) {
 				log.Info(fmt.Sprintf("↳ Dataset '%s' expired since %s", ds.Name, t.Format(TimeFormat)))
-				ds.Destroy(0)
+				if err := ds.Destroy(0); err != nil {
+					destroyErrs = append(destroyErrs, fmt.Errorf("failed to destroy dataset '%s'\n%w", ds.Name, err))
+				}
 			}
 		} else {
 			log.Debug(fmt.Sprintf("skipping unmounted path '%s'", mountpoint))
 			continue
 		}
 	}
-	return nil, nil
+	return nil, errors.Join(destroyErrs...)
 }
 
 func (ZfsPlugin) List(path string) ([]string, error) {
