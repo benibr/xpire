@@ -12,6 +12,10 @@ MAIN_OUT = xpire
 PLUGIN_DIR = filesystems
 PLUGIN_SRC = $(filter-out %_test.go,$(wildcard $(PLUGIN_DIR)/*/*.go))
 
+# Define where test filesystems and the test binaries are created, must be
+# accessible for unprivileged users to run tests as other users
+export XPIRE_TEST_DIR ?= /var/tmp/xpire-test
+
 .PHONY: all build plugins test test-unit test-install clean test-btrfs test-zfs
 
 # Default target
@@ -27,22 +31,22 @@ plugins:
 clean:
 	$(GOCLEAN)
 	rm -f $(MAIN_OUT) $(PLUGIN_DIR)/*/*.so
-	rm -rf tests/bin
+	rm -rf $(XPIRE_TEST_DIR)/bin
 
 # Build the main Go application
 build:
 	$(GOBUILD) -o $(MAIN_OUT) .
 
-# Copy xpire and plugins into a test directory, because the users of the
+# Copy xpire and plugins into the test directory, because the users of the
 # integration tests cannot access a checkout in a private home directory
 test-install: build plugins
-	mkdir -p tests/bin
-	cp $(MAIN_OUT) tests/bin/
-	cp --parents $(PLUGIN_DIR)/*/*.so tests/bin/
-	chmod -R a+rX tests/bin
+	mkdir -p $(XPIRE_TEST_DIR)/bin
+	cp $(MAIN_OUT) $(XPIRE_TEST_DIR)/bin/
+	cp --parents $(PLUGIN_DIR)/*/*.so $(XPIRE_TEST_DIR)/bin/
+	chmod -R a+rX $(XPIRE_TEST_DIR)
 
 # Run all tests
-test: test-unit test-setup test-integration test-teardown
+test: test-unit test-install test-setup test-integration test-teardown
 
 # Run unit tests, no root permissions or test filesystems needed
 test-unit:
@@ -57,7 +61,7 @@ test-integration: test-install
 	}
 
 # Run only BTRFS plugin tests
-test-btrfs: test-setup-btrfs test-run-btrfs test-teardown-btrfs
+test-btrfs: test-install test-setup-btrfs test-run-btrfs test-teardown-btrfs
 
 test-run-btrfs: test-install
 	@echo "running btrfs tests"
@@ -67,7 +71,7 @@ test-run-btrfs: test-install
 	}
 
 # Run only ZFS plugin tests
-test-zfs: test-setup-zfs test-run-zfs test-teardown-zfs
+test-zfs: test-install test-setup-zfs test-run-zfs test-teardown-zfs
 
 test-run-zfs: test-install
 	@echo "running zfs tests"
