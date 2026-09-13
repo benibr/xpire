@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"syscall"
 	"testing"
 )
 
@@ -57,8 +58,23 @@ func xpireBinary() string {
 // found, and returns its combined output and exit code
 func runXpire(t *testing.T, args ...string) (string, int) {
 	t.Helper()
+	return execXpire(t, nil, args...)
+}
+
+// runXpireAs works like runXpire but runs xpire with the given user and
+// group id, which needs root permissions
+func runXpireAs(t *testing.T, uid, gid uint32, args ...string) (string, int) {
+	t.Helper()
+	return execXpire(t, &syscall.Credential{Uid: uid, Gid: gid}, args...)
+}
+
+func execXpire(t *testing.T, cred *syscall.Credential, args ...string) (string, int) {
+	t.Helper()
 	cmd := exec.Command(xpireBinary(), args...)
 	cmd.Dir = binDir
+	if cred != nil {
+		cmd.SysProcAttr = &syscall.SysProcAttr{Credential: cred}
+	}
 	out, err := cmd.CombinedOutput()
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
