@@ -24,7 +24,7 @@ import (
 )
 
 // pool and mountpoint created by tests/setup-zfs.sh
-const zfsPool = "xpool"
+const zfsPool = "xpire-pool"
 
 var zfsMount = testMount("zfs")
 

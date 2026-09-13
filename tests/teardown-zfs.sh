@@ -8,4 +8,4 @@ if ! command -v zpool >/dev/null; then
 fi
 
 echo "tearing down zfs"
-zpool destroy xpool 2>/dev/null || true
+zpool destroy xpire-pool 2>/dev/null || true

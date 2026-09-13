@@ -21,11 +21,11 @@ func TestParseZfsGetOutput(t *testing.T) {
 		output string
 		want   string
 	}{
-		{name: "mountpoint", output: "xpool/data\tmountpoint\t/mnt/zfs/data\tdefault\n", want: "/mnt/zfs/data"},
-		{name: "mounted", output: "xpool/data\tmounted\tyes\t-\n", want: "yes"},
-		{name: "value-with-spaces", output: "xpool/data\tcomment\tsome value\tlocal\n", want: "some value"},
+		{name: "mountpoint", output: "xpire-pool/data\tmountpoint\t/mnt/zfs/data\tdefault\n", want: "/mnt/zfs/data"},
+		{name: "mounted", output: "xpire-pool/data\tmounted\tyes\t-\n", want: "yes"},
+		{name: "value-with-spaces", output: "xpire-pool/data\tcomment\tsome value\tlocal\n", want: "some value"},
 		{name: "empty", output: "", want: ""},
-		{name: "too-few-fields", output: "xpool/data\tmounted\n", want: ""},
+		{name: "too-few-fields", output: "xpire-pool/data\tmounted\n", want: ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
