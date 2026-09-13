@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")"
 
 ./teardown-btrfs.sh
 ./teardown-zfs.sh
