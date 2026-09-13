@@ -8,8 +8,8 @@ if ! command -v zpool >/dev/null; then
   exit 0
 fi
 
-if zpool list xpool &>/dev/null; then
-  echo "pool 'xpool' already exists, run teardown-zfs.sh first" >&2
+if zpool list xpire-pool &>/dev/null; then
+  echo "pool 'xpire-pool' already exists, run teardown-zfs.sh first" >&2
   exit 1
 fi
 
@@ -21,4 +21,4 @@ mkdir -p "$DIR/mnt/zfs"
 chmod 755 "$DIR" "$DIR/mnt"
 rm -f "$DIR/zfs.img"
 truncate --size 5G "$DIR/zfs.img"
-zpool create xpool -m "$(readlink -f "$DIR/mnt/zfs")" "$DIR/zfs.img" -f
+zpool create xpire-pool -m "$(readlink -f "$DIR/mnt/zfs")" "$DIR/zfs.img" -f
