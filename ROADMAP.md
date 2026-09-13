@@ -1,5 +1,4 @@
 ### version 0.1:
-
 - [x] rename to xpire
 - [x] btrfs: prune with find all subvolumes
 - [x] btrfs: warn if not a subvolume or snapshot
@@ -12,7 +11,6 @@
 - [x] Github release
 
 ### version 0.2
-
 - [x] btrfs: check for permissions
 - [x] `--loglevel`
 - [x] move functions out of main.go to seperate file
@@ -22,11 +20,9 @@
 - [x] README for btrfs
 
 ### version 0.3
-
 - [x] zfs plugin
 
 ### version 0.4
-
 - [x] add --list option
 - [x] add --unset option
 - [x] fix existing tests (agent)
@@ -35,10 +31,9 @@
 - [x] tests with multiple users. exec as nobody (agent)
 - [ ] check if more tests are needed (agent)
 - [ ] add gitlab pipeline on PRs (agent)
-- [ ] protect main branch PRs (agent)
+- [x] protect main branch PRs (agent)
 
 ### version 0.5 - usability
-
 - [ ] add --dry-run option
 - [ ] consitent error format
 - [ ] use /usr/lib/modules/6.16.8-arch3-1/build/include/uapi/linux/magic.h to autodetect filesystems
@@ -47,8 +42,7 @@
 - [ ] align log/error messages in all plugins
 
 ### version 0.5.y - packaging
-
-- Allow plugin path to be $CWD or /usr
+- [ ] Allow plugin path to be $CWD or /usr
 - [ ] Make install
 - [ ] Make uninstall
 - [ ] Containerfile
@@ -58,12 +52,10 @@
 - [ ] github pipeline to build all packages (agent)
 
 ### version 0.5.z - developing
-
 - [ ] evaluate other logger
 - [ ] prune should return list of deleted paths and xpire shold print them
 
 ### version 0.5 - basic plugin
-
 - [ ] posix plugin
 - [ ] LVM plugin
 
@@ -75,12 +67,10 @@ Add some excentric stuff, implement one of the following
 - [ ] gpfs plugin
 
 ### version 1.0 - stability
-
 - [ ] remove all #FIXMEs
 
 
 ### Future Ideas
-
 Just a collection of ideas that are not planned for impelmentation
 
 - database plugin to delete data
