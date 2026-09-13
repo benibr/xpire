@@ -15,5 +15,5 @@ echo "#########"
 mkdir -p "$DIR/mnt/btrfs"
 chmod 755 "$DIR" "$DIR/mnt"
 truncate --size 5G "$DIR/btrfs.img"
-mkfs.btrfs "$DIR/btrfs.img" &>/dev/null
+mkfs.btrfs -f "$DIR/btrfs.img" &>/dev/null
 mount -v -o loop "$DIR/btrfs.img" "$DIR/mnt/btrfs"
