@@ -13,7 +13,11 @@
 
 package main
 
-import "testing"
+import (
+	"path/filepath"
+	"strings"
+	"testing"
+)
 
 func TestSubvolumeUnder(t *testing.T) {
 	tests := []struct {
@@ -158,4 +162,31 @@ func TestSubvolumePathRoundTrip(t *testing.T) {
 				tt.absPath, tt.mountPoint, tt.mountRoot, got, relPath)
 		}
 	}
+}
+
+// FuzzSubvolumeUnder checks with clean relative paths, as btrfs and
+// subvolumeRelPath return them, that a subvolume "under" a path really is
+// that path or lies below it.
+// Run the fuzzer:  go test ./filesystems/btrfs/ -fuzz FuzzSubvolumeUnder
+func FuzzSubvolumeUnder(f *testing.F) {
+	f.Add("data", "data")
+	f.Add("data/sub", "data")
+	f.Add("data01", "data0")
+	f.Add("data", "data/sub")
+	f.Add("data", "")
+	f.Fuzz(func(t *testing.T, svPath, relPath string) {
+		for _, p := range []string{svPath, relPath} {
+			if p != "" && (filepath.IsAbs(p) || filepath.Clean(p) != p || p == "." || p == ".." || strings.HasPrefix(p, "../")) {
+				t.Skip("not a clean relative path")
+			}
+		}
+		if svPath == "" {
+			t.Skip("btrfs does not list subvolumes without a path")
+		}
+		rel, err := filepath.Rel("/"+relPath, "/"+svPath)
+		below := err == nil && rel != ".." && !strings.HasPrefix(rel, "../")
+		if got := subvolumeUnder(svPath, relPath); got != below {
+			t.Errorf("subvolumeUnder(%q, %q) = %v, want %v", svPath, relPath, got, below)
+		}
+	})
 }
