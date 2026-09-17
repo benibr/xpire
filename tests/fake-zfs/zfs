@@ -1,0 +1,84 @@
+#!/bin/bash
+# Fake 'zfs' command for the unit tests of the zfs plugin, see
+# filesystems/zfs/zfs_fake_test.go. It never touches a real pool: it answers
+# from a dataset table and records every call, so tests can assert exactly
+# which datasets xpire tried to destroy.
+#
+# Uses bash builtins only, the tests run it with a PATH that contains
+# nothing but this directory.
+#
+# Environment:
+#   FAKE_ZFS_DATASETS      file with one dataset per line:
+#                          name<TAB>mountpoint<TAB>mounted<TAB>type
+#   FAKE_ZFS_LOG           file to which the arguments of every call are
+#                          appended, separated by tabs
+#   FAKE_ZFS_FAIL_DESTROY  newline separated dataset names, 'destroy' fails
+#   FAKE_ZFS_FAIL_GET      newline separated dataset names, 'get -H' fails
+set -u
+
+: "${FAKE_ZFS_DATASETS:?}" "${FAKE_ZFS_LOG:?}"
+
+(IFS=$'\t'; printf '%s\n' "$*") >> "$FAKE_ZFS_LOG"
+
+# in_list <name> <newline separated list>
+in_list() {
+  [[ $'\n'"$2"$'\n' == *$'\n'"$1"$'\n'* ]]
+}
+
+# list all datasets with the properties go-zfs and xpire care about
+if [[ "$*" == "get -rHp -t all all" ]]; then
+  while IFS=$'\t' read -r name mountpoint mounted type; do
+    printf '%s\ttype\t%s\t-\n' "$name" "$type"
+    printf '%s\tmountpoint\t%s\tdefault\n' "$name" "$mountpoint"
+  done < "$FAKE_ZFS_DATASETS"
+  exit 0
+fi
+
+# get one property of one dataset
+if [[ $# -eq 4 && "$1" == "get" && "$2" == "-H" ]]; then
+  if in_list "$4" "${FAKE_ZFS_FAIL_GET:-}"; then
+    echo "cannot open '$4': fake failure" >&2
+    exit 1
+  fi
+  while IFS=$'\t' read -r name mountpoint mounted type; do
+    if [[ "$name" == "$4" ]]; then
+      case "$3" in
+        mountpoint) value="$mountpoint" ;;
+        mounted) value="$mounted" ;;
+        type) value="$type" ;;
+        *) value="-" ;;
+      esac
+      printf '%s\t%s\t%s\t-\n' "$name" "$3" "$value"
+      exit 0
+    fi
+  done < "$FAKE_ZFS_DATASETS"
+  echo "cannot open '$4': dataset does not exist" >&2
+  exit 1
+fi
+
+# destroy without any flags, like the real command it refuses datasets
+# that have children or snapshots
+if [[ $# -eq 2 && "$1" == "destroy" ]]; then
+  if in_list "$2" "${FAKE_ZFS_FAIL_DESTROY:-}"; then
+    echo "cannot destroy '$2': fake failure" >&2
+    exit 1
+  fi
+  found=no
+  while IFS=$'\t' read -r name mountpoint mounted type; do
+    if [[ "$name" == "$2" ]]; then
+      found=yes
+    elif [[ "$name" == "$2"/* || "$name" == "$2"@* ]]; then
+      echo "cannot destroy '$2': filesystem has children" >&2
+      exit 1
+    fi
+  done < "$FAKE_ZFS_DATASETS"
+  if [[ "$found" == "no" ]]; then
+    echo "could not find any datasets to destroy with name '$2'" >&2
+    exit 1
+  fi
+  exit 0
+fi
+
+echo "fake zfs: unexpected call: $*" >&2
+printf 'UNEXPECTED\n' >> "$FAKE_ZFS_LOG"
+exit 2
