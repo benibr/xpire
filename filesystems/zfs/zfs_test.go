@@ -26,6 +26,12 @@ func TestParseZfsGetOutput(t *testing.T) {
 		{name: "value-with-spaces", output: "xpire-pool/data\tcomment\tsome value\tlocal\n", want: "some value"},
 		{name: "empty", output: "", want: ""},
 		{name: "too-few-fields", output: "xpire-pool/data\tmounted\n", want: ""},
+		{name: "no-value", output: "xpire-pool/data@snap\tmountpoint\t-\t-\n", want: "-"},
+		{name: "value-with-outer-spaces", output: "xpire-pool/data\tmountpoint\t /mnt/zfs/data \tlocal\n", want: " /mnt/zfs/data "},
+		{name: "only-first-line", output: "xpire-pool/a\tmounted\tyes\t-\nxpire-pool/b\tmounted\tno\t-\n", want: "yes"},
+		// KNOWN ISSUE K12 (TEST_PLAN.md): a mountpoint with a tab is cut off,
+		// the xattr is then read from another directory than the dataset
+		{name: "value-with-tab", output: "xpire-pool/data\tmountpoint\t/mnt/zfs/da\tta\tlocal\n", want: "/mnt/zfs/da\tta"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -50,6 +56,18 @@ func TestMountpointUnder(t *testing.T) {
 		{mountpoint: "/mnt", absPath: "/mnt/data", want: false},
 		{mountpoint: "none", absPath: "/mnt", want: false},
 		{mountpoint: "legacy", absPath: "/", want: false},
+		{mountpoint: "-", absPath: "/", want: false},
+		{mountpoint: "/mnt/data/", absPath: "/mnt/data", want: true},
+		{mountpoint: "/mnt/datax", absPath: "/mnt/data", want: false},
+		{mountpoint: "/mnt/Data", absPath: "/mnt/data", want: false},
+		{mountpoint: "/mnt/data", absPath: "/mnt/data/sub/deep", want: false},
+		{mountpoint: "/data", absPath: "/mnt/data", want: false},
+		{mountpoint: "mnt/data", absPath: "/mnt", want: false},
+		// Documents current behaviour: every absolute mountpoint lies under
+		// an empty path, which is what makes K1 in TEST_PLAN.md dangerous
+		{mountpoint: "/mnt/data", absPath: "", want: true},
+		{mountpoint: "", absPath: "", want: true},
+		{mountpoint: "", absPath: "/mnt", want: false},
 	}
 	for _, tt := range tests {
 		if got := mountpointUnder(tt.mountpoint, tt.absPath); got != tt.want {
