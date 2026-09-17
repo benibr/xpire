@@ -188,10 +188,10 @@ func (p ZfsPlugin) PruneExpired(path string) ([]string, error) {
 	return nil, errors.Join(destroyErrs...)
 }
 
-func (ZfsPlugin) List(path string) ([]string, error) {
+func (ZfsPlugin) List(path string) (map[string]time.Time, error) {
 	absPath, _ := helpers.CleanPath(path)
 	log.Info(fmt.Sprintf("Listing data in '%s'", path))
-
+	ret := make(map[string]time.Time)
 	datasets, err := zfs.Datasets("")
 	if err != nil {
 		return nil, fmt.Errorf("failed to list ZFS datasets: %w", err)
@@ -214,17 +214,13 @@ func (ZfsPlugin) List(path string) ([]string, error) {
 				log.Warn(fmt.Errorf("cannot parse expire date format:\n\t%w", err))
 				continue
 			}
-			if t.Before(time.Now()) {
-				log.Info(fmt.Sprintf("↳ Dataset '%s' expired since %s", ds.Name, t.Format(TimeFormat)))
-			} else {
-				log.Info(fmt.Sprintf("↳ Dataset '%s' expires in %s", ds.Name, t.Format(TimeFormat)))
-			}
+			ret[mountpoint] = t
 		} else {
 			log.Debug(fmt.Sprintf("skipping unmounted path '%s'", mountpoint))
 			continue
 		}
 	}
-	return nil, nil
+	return ret, nil
 }
 
 func main() {}
