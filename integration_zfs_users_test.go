@@ -16,6 +16,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -121,5 +123,48 @@ func TestZFSUsers(t *testing.T) {
 		assertRun(t, RC_OK, []string{"↳ Dataset '" + base + "/ds' expired since " + expiredDate},
 			"--path", ds, "--prune")
 		assertDatasetGone(t, base+"/ds")
+	})
+
+	// Documents current behaviour: root trusts every date, also one that a
+	// user without an account set on a dataset of somebody else, because
+	// it is world-writable. Owner decision, see K-table in TEST_PLAN.md
+	t.Run("root-prunes-date-set-by-other-user-on-world-writable", func(t *testing.T) {
+		base, basePath := newZfsBase(t)
+		ds := newDataset(t, base, "ds")
+		private := newDataset(t, base, "private")
+		chown(t, ds, ownerUID, ownerGID)
+		chown(t, private, ownerUID, ownerGID)
+		chmod(t, ds, 0777)
+		assertRunAs(t, otherUID, otherGID, RC_OK, nil, "--path", ds, "--set", expiredDate)
+		assertRunAs(t, otherUID, otherGID, RC_ERR_FS, nil, "--path", private, "--set", expiredDate)
+		assertRun(t, RC_OK, nil, "--path", basePath, "--prune")
+		assertDatasetGone(t, base+"/ds")
+		assertDatasetExists(t, base+"/private")
+	})
+
+	// a symlink of a user must not give him more rights on its target
+	t.Run("set-as-other-user-through-own-symlink", func(t *testing.T) {
+		base, basePath := newZfsBase(t)
+		ds := newDataset(t, base, "ds")
+		chown(t, ds, ownerUID, ownerGID)
+		dir := filepath.Join(basePath, "dir")
+		if err := os.Mkdir(dir, 0755); err != nil {
+			t.Fatal(err)
+		}
+		link := filepath.Join(dir, "link")
+		if err := os.Symlink(ds, link); err != nil {
+			t.Fatal(err)
+		}
+		chown(t, dir, otherUID, otherGID)
+		if err := os.Lchown(link, int(otherUID), int(otherGID)); err != nil {
+			t.Fatal(err)
+		}
+		assertRunAs(t, otherUID, otherGID, RC_ERR_FS, []string{"permission denied"},
+			"--path", link, "--set", expiredDate)
+		if got, ok := expireOf(t, ds); ok {
+			t.Errorf("user.expire was set to %q", got)
+		}
+		assertRun(t, RC_OK, nil, "--path", basePath, "--prune")
+		assertDatasetExists(t, base+"/ds")
 	})
 }
