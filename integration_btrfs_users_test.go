@@ -134,4 +134,47 @@ func TestBTRFSUsers(t *testing.T) {
 			"--path", sv, "--prune")
 		assertGone(t, sv)
 	})
+
+	// Documents current behaviour: root trusts every date, also one that a
+	// user without an account set on a subvolume of somebody else, because
+	// it is world-writable. Owner decision, see K-table in TEST_PLAN.md
+	t.Run("root-prunes-date-set-by-other-user-on-world-writable", func(t *testing.T) {
+		base := newBtrfsBase(t)
+		sv := newSubvolume(t, filepath.Join(base, "sv"))
+		private := newSubvolume(t, filepath.Join(base, "private"))
+		chown(t, sv, ownerUID, ownerGID)
+		chown(t, private, ownerUID, ownerGID)
+		chmod(t, sv, 0777)
+		assertRunAs(t, otherUID, otherGID, RC_OK, nil, "--path", sv, "--set", expiredDate)
+		assertRunAs(t, otherUID, otherGID, RC_ERR_FS, nil, "--path", private, "--set", expiredDate)
+		assertRun(t, RC_OK, nil, "--path", base, "--prune")
+		assertGone(t, sv)
+		assertExists(t, private)
+	})
+
+	// a symlink of a user must not give him more rights on its target
+	t.Run("set-as-other-user-through-own-symlink", func(t *testing.T) {
+		base := newBtrfsBase(t)
+		sv := newSubvolume(t, filepath.Join(base, "sv"))
+		chown(t, sv, ownerUID, ownerGID)
+		dir := filepath.Join(base, "dir")
+		if err := os.Mkdir(dir, 0755); err != nil {
+			t.Fatal(err)
+		}
+		link := filepath.Join(dir, "link")
+		if err := os.Symlink(sv, link); err != nil {
+			t.Fatal(err)
+		}
+		chown(t, dir, otherUID, otherGID)
+		if err := os.Lchown(link, int(otherUID), int(otherGID)); err != nil {
+			t.Fatal(err)
+		}
+		assertRunAs(t, otherUID, otherGID, RC_ERR_FS, []string{"permission denied"},
+			"--path", link, "--set", expiredDate)
+		if got, ok := expireOf(t, sv); ok {
+			t.Errorf("user.expire was set to %q", got)
+		}
+		assertRun(t, RC_OK, nil, "--path", base, "--prune")
+		assertExists(t, sv)
+	})
 }
