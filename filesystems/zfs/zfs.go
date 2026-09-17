@@ -21,8 +21,7 @@ import (
 	"time"
 	"xpire/helpers"
 	"xpire/pluginapi"
-	// zfs "github.com/bicomsystems/go-libzfs" //outdated
-	//zfs "github.com/bitomia/go-libzfs"
+
 	zfs "github.com/mistifyio/go-zfs"
 	"github.com/pkg/xattr"
 	"github.com/sirupsen/logrus"
