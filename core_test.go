@@ -14,6 +14,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"testing"
@@ -40,4 +42,36 @@ func TestGetFsType(t *testing.T) {
 			t.Error("expected an error for a non-existing path")
 		}
 	})
+
+	t.Run("empty-path", func(t *testing.T) {
+		if got, err := getFsType(""); err == nil {
+			t.Errorf("expected an error for an empty path, got '%s'", got)
+		}
+	})
+
+	t.Run("dangling-symlink", func(t *testing.T) {
+		link := filepath.Join(t.TempDir(), "dangling")
+		if err := os.Symlink(filepath.Join(t.TempDir(), "missing"), link); err != nil {
+			t.Fatal(err)
+		}
+		if got, err := getFsType(link); err == nil {
+			t.Errorf("expected an error for a dangling symlink, got '%s'", got)
+		}
+	})
+}
+
+// a plugin name must never make xpire load code from outside of the
+// plugin directory
+func TestLoadPluginInvalidName(t *testing.T) {
+	for _, name := range []string{"", ".", "..", "../evil", "a/b", "/tmp/evil", "nope"} {
+		t.Run("name-"+strings.ReplaceAll(name, "/", "_"), func(t *testing.T) {
+			p, err := loadPlugin(name)
+			if err == nil {
+				t.Errorf("loadPlugin(%q) succeeded", name)
+			}
+			if p != nil {
+				t.Errorf("loadPlugin(%q) returned a plugin", name)
+			}
+		})
+	}
 }
