@@ -35,7 +35,7 @@
 - [x] tests with multiple users. exec as nobody (agent)
 - [ ] check if more tests are needed (agent)
 - [ ] add gitlab pipeline on PRs (agent)
-- [ ] protect main branch PRs (agent)
+- [x] protect main branch PRs
 
 ### version 0.5 - usability
 
