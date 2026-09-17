@@ -94,6 +94,55 @@ func TestCLI(t *testing.T) {
 			output: `parsing time "2002-01-01"`,
 		},
 		{
+			name:   "invalid-date-day-out-of-range",
+			args:   []string{"--path", dir, "--plugin", "btrfs", "--set", "2002-02-30 15:00:00"},
+			rc:     RC_ERR_ARGS,
+			output: "day out of range",
+		},
+		{
+			name:   "invalid-date-hour-out-of-range",
+			args:   []string{"--path", dir, "--plugin", "btrfs", "--set", "2002-01-01 24:00:00"},
+			rc:     RC_ERR_ARGS,
+			output: "hour out of range",
+		},
+		{
+			name:   "invalid-date-with-timezone",
+			args:   []string{"--path", dir, "--plugin", "btrfs", "--set", "2002-01-01 15:00:00 +02:00"},
+			rc:     RC_ERR_ARGS,
+			output: "extra text",
+		},
+		{
+			name:   "invalid-date-iso-format",
+			args:   []string{"--path", dir, "--plugin", "btrfs", "--set", "2002-01-01T15:00:00Z"},
+			rc:     RC_ERR_ARGS,
+			output: "parsing time",
+		},
+		{
+			name:   "invalid-date-leading-space",
+			args:   []string{"--path", dir, "--plugin", "btrfs", "--set", " 2002-01-01 15:00:00"},
+			rc:     RC_ERR_ARGS,
+			output: "parsing time",
+		},
+		{
+			name:   "invalid-date-relative",
+			args:   []string{"--path", dir, "--plugin", "btrfs", "--set", "tomorrow"},
+			rc:     RC_ERR_ARGS,
+			output: "parsing time",
+		},
+		{
+			name:   "empty-path",
+			args:   []string{"--path", "", "--prune"},
+			rc:     RC_ERR_ARGS,
+			output: "--path missing",
+		},
+		{
+			// KNOWN ISSUE K8 (TEST_PLAN.md): errorHandler ignores its message
+			name:   "unknown-plugin-message",
+			args:   []string{"--path", dir, "--plugin", "unknown", "--list"},
+			rc:     RC_ERR_PLUGIN,
+			output: "Cannot load plugin 'unknown'",
+		},
+		{
 			name:   "set-with-wrong-plugin",
 			args:   []string{"--path", dir, "--plugin", "btrfs", "--set", "2002-01-01 15:00:00"},
 			rc:     RC_ERR_FS,
@@ -126,6 +175,21 @@ func TestCLI(t *testing.T) {
 			if !strings.Contains(out, tt.output) {
 				t.Errorf("output does not contain %q\n%s", tt.output, out)
 			}
+		})
+	}
+
+	// KNOWN ISSUE K1 (TEST_PLAN.md): with an explicit plugin nothing checks
+	// that the path exists, the plugins then work on an empty path, which
+	// means everything. Uses --list only, a --prune could delete data of
+	// the host that runs the tests.
+	for _, plugin := range []string{"btrfs", "zfs"} {
+		t.Run("non-existing-path-with-plugin-"+plugin, func(t *testing.T) {
+			out, rc := runXpire(t, "--path", dir+"/missing", "--plugin", plugin, "--list")
+			if rc == RC_OK {
+				t.Errorf("want an error exit code, got %d\n%s", rc, out)
+			}
+			// nothing must be considered for the missing path
+			assertNotContains(t, out, "↳")
 		})
 	}
 }
