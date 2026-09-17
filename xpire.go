@@ -24,6 +24,7 @@ import (
 )
 
 // global const
+const TimeFormat = time.DateTime
 const RC_OK = 0
 const RC_ERR = 1
 const RC_ERR_ARGS = 5
@@ -101,13 +102,23 @@ func main() {
 
 		// --prune expired data
 	} else if args.Prune {
-		_, err = fsplugin.PruneExpired(args.Path)
+		found, err := fsplugin.List(args.Path)
+		errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error while listing expiry dates:\n %s", err))
+		err = fsplugin.PruneExpired(found)
 		errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error during pruning:\n %s", err))
 
 		// --list dates
 	} else if args.List {
-		_, err = fsplugin.List(args.Path)
+		found, err := fsplugin.List(args.Path)
 		errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error while listing expiry dates:\n %s", err))
+		for path, date := range found {
+			if date.Before(time.Now()) {
+				fmt.Sprintf("↳ Dataset '%s' expired since %s", path, date.Format(TimeFormat))
+			} else {
+				fmt.Sprintf("↳ Dataset '%s' expires in %s", path, date.Format(TimeFormat))
+			}
+			fmt.Sprintf("↳ Dataset '%s' expired since %s", path, date.Format(TimeFormat))
+		}
 
 		// error in args
 	} else {
