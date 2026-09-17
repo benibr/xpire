@@ -34,7 +34,7 @@
 - [ ] fix bug which came up when testing
     - [ ] make time comparsion of xattr vs. now() a helper func which relies on UTC
 - [x] add GitHub pipeline on PRs (agent)
-- [x] protect main branch PRs (agent)
+- [x] protect main branch PRs
 - [x] add --dry-run option
 - [x] fix bug with unsorted deletion order
 
