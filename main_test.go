@@ -58,20 +58,28 @@ func xpireBinary() string {
 // found, and returns its combined output and exit code
 func runXpire(t *testing.T, args ...string) (string, int) {
 	t.Helper()
-	return execXpire(t, nil, args...)
+	return execXpire(t, nil, nil, args...)
+}
+
+// runXpireEnv works like runXpire but adds variables like "TZ=UTC" to the
+// environment of xpire
+func runXpireEnv(t *testing.T, env []string, args ...string) (string, int) {
+	t.Helper()
+	return execXpire(t, nil, env, args...)
 }
 
 // runXpireAs works like runXpire but runs xpire with the given user and
 // group id, which needs root permissions
 func runXpireAs(t *testing.T, uid, gid uint32, args ...string) (string, int) {
 	t.Helper()
-	return execXpire(t, &syscall.Credential{Uid: uid, Gid: gid}, args...)
+	return execXpire(t, &syscall.Credential{Uid: uid, Gid: gid}, nil, args...)
 }
 
-func execXpire(t *testing.T, cred *syscall.Credential, args ...string) (string, int) {
+func execXpire(t *testing.T, cred *syscall.Credential, env []string, args ...string) (string, int) {
 	t.Helper()
 	cmd := exec.Command(xpireBinary(), args...)
 	cmd.Dir = binDir
+	cmd.Env = append(os.Environ(), env...)
 	if cred != nil {
 		cmd.SysProcAttr = &syscall.SysProcAttr{Credential: cred}
 	}
