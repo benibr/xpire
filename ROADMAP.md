@@ -54,6 +54,7 @@
 ### version 0.5.z - developing
 - [ ] evaluate other logger
 - [ ] prune should return list of deleted paths and xpire shold print them
+- [ ] only use `expiration_date` or `date` for short
 
 ### version 0.5 - basic plugin
 - [ ] posix plugin
