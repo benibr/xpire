@@ -1,8 +1,9 @@
 package pluginapi
 
 import (
-	"github.com/sirupsen/logrus"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // This interface defines the mandatory functions every filesystem
