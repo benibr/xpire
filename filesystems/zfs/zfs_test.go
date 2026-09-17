@@ -13,7 +13,11 @@
 
 package main
 
-import "testing"
+import (
+	"path/filepath"
+	"strings"
+	"testing"
+)
 
 func TestParseZfsGetOutput(t *testing.T) {
 	tests := []struct {
@@ -74,4 +78,27 @@ func TestMountpointUnder(t *testing.T) {
 			t.Errorf("mountpointUnder(%q, %q) = %v, want %v", tt.mountpoint, tt.absPath, got, tt.want)
 		}
 	}
+}
+
+// FuzzMountpointUnder checks with clean absolute paths, as CleanPath and
+// zfs return them, that a mountpoint "under" a path really is that path or
+// lies below it.
+// Run the fuzzer:  go test ./filesystems/zfs/ -fuzz FuzzMountpointUnder
+func FuzzMountpointUnder(f *testing.F) {
+	f.Add("/mnt/data", "/mnt/data")
+	f.Add("/mnt/data/sub", "/mnt/data")
+	f.Add("/mnt/data01", "/mnt/data0")
+	f.Add("/mnt", "/mnt/data")
+	f.Add("/mnt/data", "/")
+	f.Fuzz(func(t *testing.T, mountpoint, absPath string) {
+		if !filepath.IsAbs(mountpoint) || !filepath.IsAbs(absPath) ||
+			filepath.Clean(mountpoint) != mountpoint || filepath.Clean(absPath) != absPath {
+			t.Skip("not a clean absolute path")
+		}
+		rel, err := filepath.Rel(absPath, mountpoint)
+		below := err == nil && rel != ".." && !strings.HasPrefix(rel, "../")
+		if got := mountpointUnder(mountpoint, absPath); got != below {
+			t.Errorf("mountpointUnder(%q, %q) = %v, want %v", mountpoint, absPath, got, below)
+		}
+	})
 }
