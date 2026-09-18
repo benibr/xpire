@@ -1,0 +1,27 @@
+name: build and test
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: install filesystem tools
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install btrfs-progs zfsutils-linux
+
+      - name: build
+        run: make
+
+      # integration tests create and mount test filesystems and run xpire as
+      # other users, so they need root. sudo resets PATH, keep it to find go
+      - name: test
+        run: sudo env "PATH=$PATH" make test GOTEST="go test -v"
