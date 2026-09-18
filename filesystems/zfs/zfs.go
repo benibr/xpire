@@ -14,7 +14,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -38,6 +37,11 @@ var (
 type ZfsPlugin struct{}
 
 // ---- internal functions
+
+// Retrieve a ZFS dataset name from a absolute path
+func DatasetNameFromPath(path string) (string, error) {
+	return path, nil
+}
 
 // return the value of a ZFS dataset property
 // because non of the tested golang ZFS libraries got the property values correctly
@@ -146,46 +150,28 @@ func (p ZfsPlugin) SetExpireDate(t time.Time, path string) error {
 	return nil
 }
 
-func (p ZfsPlugin) PruneExpired(path string) ([]string, error) {
-	absPath, _ := helpers.CleanPath(path)
-	log.Info(fmt.Sprintf("pruning expired data in '%s'", path))
+func (p ZfsPlugin) PruneExpired(paths map[string]time.Time) error {
 
-	datasets, err := zfs.Datasets("")
-	if err != nil {
-		return nil, fmt.Errorf("failed to list ZFS datasets: %w", err)
-	}
-	// continue with other datasets if one cannot be destroyed
-	var destroyErrs []error
-	for _, ds := range datasets {
-		mountpoint, _ := zfsGet(ds.Name, "mountpoint")
-		if !mountpointUnder(mountpoint, absPath) {
-			continue
+	for path, date := range paths {
+		dsName, err := DatasetNameFromPath(path)
+		if err != nil {
+			return fmt.Errorf("failed find dataset name for path '%s': %w", path, err)
 		}
-		log.Debug(fmt.Sprintf("Checking path '%s'", mountpoint))
-		isMounted, _ := zfsGet(ds.Name, "mounted")
-		if isMounted == "yes" {
-			xattr, err := xattr.Get(mountpoint, "user.expire")
-			if err != nil {
-				log.Debug(fmt.Errorf("cannot read expire xattr on '%s'\n\t%w", mountpoint, err))
-				continue
+		dataset, err := zfs.GetDataset(dsName)
+		if err != nil {
+			return fmt.Errorf("failed to list ZFS datasets: %w", err)
+		}
+		// continue with other datasets if one cannot be destroyed
+		var destroyErrs []error
+		log.Debug(fmt.Sprintf("Checking path '%s'", path))
+		if date.Before(time.Now()) {
+			log.Info(fmt.Sprintf("↳ Dataset '%s' expired since %s", dataset.Name, date.Format(TimeFormat)))
+			if err := dataset.Destroy(0); err != nil {
+				destroyErrs = append(destroyErrs, fmt.Errorf("failed to destroy dataset '%s'\n%w", dataset.Name, err))
 			}
-			t, err := time.Parse(TimeFormat, string(xattr))
-			if err != nil {
-				log.Warn(fmt.Errorf("cannot parse expire date format:\n\t%w", err))
-				continue
-			}
-			if t.Before(time.Now()) {
-				log.Info(fmt.Sprintf("↳ Dataset '%s' expired since %s", ds.Name, t.Format(TimeFormat)))
-				if err := ds.Destroy(0); err != nil {
-					destroyErrs = append(destroyErrs, fmt.Errorf("failed to destroy dataset '%s'\n%w", ds.Name, err))
-				}
-			}
-		} else {
-			log.Debug(fmt.Sprintf("skipping unmounted path '%s'", mountpoint))
-			continue
 		}
 	}
-	return nil, errors.Join(destroyErrs...)
+	return nil
 }
 
 func (ZfsPlugin) List(path string) (map[string]time.Time, error) {
