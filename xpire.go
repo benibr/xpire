@@ -113,11 +113,10 @@ func main() {
 		errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error while listing expiry dates:\n %s", err))
 		for path, date := range found {
 			if date.Before(time.Now()) {
-				fmt.Sprintf("↳ Dataset '%s' expired since %s", path, date.Format(TimeFormat))
+				fmt.Printf("↳ '%s' expired since %s\n", path, date.Format(TimeFormat))
 			} else {
-				fmt.Sprintf("↳ Dataset '%s' expires in %s", path, date.Format(TimeFormat))
+				fmt.Printf("↳ '%s' expires in %s\n", path, date.Format(TimeFormat))
 			}
-			fmt.Sprintf("↳ Dataset '%s' expired since %s", path, date.Format(TimeFormat))
 		}
 
 		// error in args

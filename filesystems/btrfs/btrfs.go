@@ -152,16 +152,16 @@ func (p BtrfsPlugin) SetExpireDate(t time.Time, path string) error {
 }
 
 func (p BtrfsPlugin) PruneExpired(paths map[string]time.Time) error {
+	log.Info("pruning expired data")
 	if !helpers.IsRoot() {
 		return errors.New("btrfs plugin needs root permissions to list all subvolumes")
 	}
 
 	for path, date := range paths {
-		log.Debug(fmt.Sprintf("checking if '%s' is expired", path))
+		log.Debug(fmt.Sprintf("checking path='%s', date='%s'", path, date.Format(TimeFormat)))
 		absPath, _ := helpers.CleanPath(path)
-		t := date
-		if t.Before(time.Now()) {
-			log.Info(fmt.Sprintf("↳ Subvolume '%s' expired since %s", absPath, t.Format(TimeFormat)))
+		if date.Before(time.Now()) {
+			log.Info(fmt.Sprintf("↳ '%s' expired since %s", absPath, date.Format(TimeFormat)))
 			if err := btrfs.DeleteSubVolume(absPath); err != nil {
 				// Handle the error appropriately, e.g., log or return
 				log.Printf("failed to delete subvolume %s: %v", absPath, err)
