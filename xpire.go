@@ -43,6 +43,7 @@ var args struct {
 	Prune           bool
 	Loglevel        string `arg:"-d,--loglevel"`
 	List            bool   `arg:"-l,--list"`
+	DryRun          bool   `arg:"--dry-run"`
 }
 
 func main() {
@@ -104,8 +105,12 @@ func main() {
 	} else if args.Prune {
 		found, err := fsplugin.List(args.Path)
 		errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error while listing expiry dates:\n %s", err))
-		err = fsplugin.PruneExpired(found)
-		errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error during pruning:\n %s", err))
+		if !args.DryRun {
+			err = fsplugin.PruneExpired(found)
+			errorHandler(err, RC_ERR_PLUGIN, fmt.Sprintf("Error during pruning:\n %s", err))
+		} else {
+			log.Debug("not pruning anything cause --dry-run is given")
+		}
 
 		// --list dates
 	} else if args.List {
