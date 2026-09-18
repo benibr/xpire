@@ -16,16 +16,17 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/dennwc/btrfs"
-	"github.com/moby/sys/mountinfo"
-	"github.com/pkg/xattr"
-	"github.com/sirupsen/logrus"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
 	"xpire/helpers"
 	"xpire/pluginapi"
+
+	"github.com/dennwc/btrfs"
+	"github.com/moby/sys/mountinfo"
+	"github.com/pkg/xattr"
+	"github.com/sirupsen/logrus"
 )
 
 const TimeFormat = time.DateTime
@@ -200,7 +201,9 @@ func (p BtrfsPlugin) PruneExpired(path string) ([]string, error) {
 	return nil, nil
 }
 
-func (p BtrfsPlugin) List(path string) ([]string, error) {
+func (p BtrfsPlugin) List(path string) (map[string]time.Time, error) {
+	ret := make(map[string]time.Time)
+
 	if !helpers.IsRoot() {
 		return nil, errors.New("btrfs plugin needs root permissions to list all subvolumes")
 	}
@@ -237,14 +240,9 @@ func (p BtrfsPlugin) List(path string) ([]string, error) {
 			log.Warn(fmt.Errorf("cannot parse expire date format:\n\t%w", err))
 			continue
 		}
-		if t.Before(time.Now()) {
-			log.Info(fmt.Sprintf("↳ Subvolume '%s' expired since %s", sv.Path, t.Format(TimeFormat)))
-		} else {
-			log.Info(fmt.Sprintf("↳ Subvolume '%s' expires in %s", sv.Path, t.Format(TimeFormat)))
-		}
+		ret[fullPath] = t
 	}
-	// TODO: return list of paths not yet implemented
-	return nil, nil
+	return ret, nil
 }
 
 func main() {}
