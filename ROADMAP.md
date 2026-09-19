@@ -30,18 +30,15 @@
 - [x] add unit tests (agent)
 - [x] tests with multiple users. exec as nobody (agent)
 - [ ] check if more tests are needed (agent)
-- [x] add gitlab pipeline on PRs (agent)
+    - [ ] make: print test results PASS/FAIL like github pipeline (agent)
+- [ ] fix bug which came up when testing
+    - [ ] make time comparsion of xattr vs. now() a helper func which relies on UTC
+- [x] add GitHub pipeline on PRs (agent)
 - [x] protect main branch PRs (agent)
+- [x] add --dry-run option
+- [x] fix bug with unsorted deletion order
 
-### version 0.5 - usability
-- [ ] add --dry-run option
-- [ ] consitent error format
-- [ ] use /usr/lib/modules/6.16.8-arch3-1/build/include/uapi/linux/magic.h to autodetect filesystems
-- [ ] make output more readable
-  - [ ] only use absolute paths in output
-- [ ] align log/error messages in all plugins
-
-### version 0.5.y - packaging
+### version 0.4.y - packaging
 - [ ] Allow plugin path to be $CWD or /usr
 - [ ] Make install
 - [ ] Make uninstall
@@ -50,6 +47,17 @@
 - [ ] .rpm
 - [ ] .deb
 - [ ] github pipeline to build all packages (agent)
+
+### version 0.5 - usability
+- [ ] consitent error format
+- [ ] use /usr/lib/modules/6.16.8-arch3-1/build/include/uapi/linux/magic.h to autodetect filesystems
+- [ ] make output more readable
+  - [ ] only use absolute paths in output
+- [ ] align log/error messages in all plugins
+- [ ] update options hints/help
+- [ ] --dry-run for all commands
+- [ ] write extensive READMEs for plugins
+- [ ] Improve README regarding Getting-Started
 
 ### version 0.5.z - developing
 - [ ] evaluate other logger
@@ -69,6 +77,8 @@ Add some excentric stuff, implement one of the following
 
 ### version 1.0 - stability
 - [ ] remove all #FIXMEs
+- [ ] AI review
+- [ ] human review
 
 
 ### Future Ideas
