@@ -2,7 +2,7 @@
 
 xpire is a CLI tool that can store information about when data should expire and delete the data accordingly.
 It aims to be a simple tool usable by humans or in scripts to handle deletion of obsolete data.
-xpire itself is stateless, no daemon or database backend is required, all information in stored in the filesystems themselfs.
+xpire itself is stateless, no daemon or database backend is required, all information in stored in the filesystems themselves.
 
 While the xpire binary is only the user interface,
 the actual work is done by plugins which should enable
@@ -25,7 +25,7 @@ xpire --path /data --list
 xpire --path /data --prune
 ```
 
-Be arware that you might need root priviledges depending on the plugin used.
+Be aware that you might need root privileges depending on the plugin used.
 
 ## Building from source
 
