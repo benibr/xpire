@@ -18,11 +18,14 @@ is to use the extended attribute `user.expire="YYYY-MM-DD HH:MM:SS"`.
 # set a expiration date
 xpire --path /data/foo/ --set "2023-05-01 15:00:00"
 
-# list all expiration dates
+# list all expiration dates (past and future)
 xpire --path /data --list
 
 # recursively prune all expired data
 xpire --path /data --prune
+
+# show what would be pruned without deleting anything
+xpire --path /data --prune --dry-run
 ```
 
 Be aware that you might need root privileges depending on the plugin used.
