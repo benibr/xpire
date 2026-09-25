@@ -40,8 +40,23 @@ type ZfsPlugin struct{}
 // ---- internal functions
 
 // Retrieve a ZFS dataset name from a absolute path
+// by iterating through all datasets and returning
+// the first one that is mounted to path
 func DatasetNameFromPath(path string) (string, error) {
-	return path, nil
+	datasets, err := zfs.Datasets("")
+	if err != nil {
+		return "", fmt.Errorf("failed to list ZFS datasets: %w", err)
+	}
+	for _, ds := range datasets {
+		isMounted, _ := zfsGet(ds.Name, "mounted")
+		if isMounted == "yes" {
+			mountpoint, _ := zfsGet(ds.Name, "mountpoint")
+			if mountpoint == path {
+				return ds.Name, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("did not find any ZFS dataset mounted under '%s'", path)
 }
 
 // return the value of a ZFS dataset property
@@ -127,6 +142,7 @@ func (p ZfsPlugin) SetExpireDate(t time.Time, path string) error {
 	if err != nil {
 		return fmt.Errorf("failed to list ZFS datasets: %w", err)
 	}
+
 	var isDataset bool
 	// for unknown reasons ds.IsMounted returns the mountpoint of the FS not the DS
 	// so we iterate through all DSs and check if one return
@@ -167,9 +183,9 @@ func (p ZfsPlugin) PruneExpired(paths map[string]time.Time) error {
 		// continue with other datasets if one cannot be destroyed
 		log.Debug(fmt.Sprintf("Checking path '%s'", path))
 		if date.Before(time.Now()) {
-			log.Info(fmt.Sprintf("↳ Dataset '%s' expired since %s", dataset.Name, date.Format(TimeFormat)))
+			log.Info(fmt.Sprintf("↳ Dataset '%s' expired since %s", dataset.Mountpoint, date.Format(TimeFormat)))
 			if err := dataset.Destroy(0); err != nil {
-				destroyErrs = append(destroyErrs, fmt.Errorf("failed to destroy dataset '%s'\n%w", dataset.Name, err))
+				destroyErrs = append(destroyErrs, fmt.Errorf("failed to destroy dataset mounted under '%s'\n%w", dataset.Mountpoint, err))
 			}
 		}
 	}
