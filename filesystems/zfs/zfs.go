@@ -153,6 +153,7 @@ func (p ZfsPlugin) SetExpireDate(t time.Time, path string) error {
 
 func (p ZfsPlugin) PruneExpired(paths map[string]time.Time) error {
 	var destroyErrs []error
+	log.Info("pruning expired data")
 	for _, path := range helpers.SortPathsHierarchically(paths) {
 		date := paths[path]
 		dsName, err := DatasetNameFromPath(path)
