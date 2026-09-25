@@ -103,31 +103,32 @@ func TestZFSSafety(t *testing.T) {
 		}
 		setExpire(t, parent, expiredDate)
 		setExpire(t, child, futureDate)
-		assertRun(t, RC_ERR_PLUGIN, []string{"failed to destroy dataset '" + base + "/parent'"},
+		assertRun(t, RC_ERR_PLUGIN, []string{"failed to destroy dataset mounted under '" + parent + "'"},
 			"--path", parent, "--prune")
 		assertDatasetExists(t, base+"/parent")
 		assertDatasetExists(t, base+"/parent/child")
 		assertExists(t, filepath.Join(child, "file"))
 	})
 
-	// zfs lists the parent first, it can only be destroyed by a second run
+	// zfs lists the parent first, xpire sorts children first so that one
+	// run destroys both
 	t.Run("prune-expired-parent-and-child", func(t *testing.T) {
 		base, basePath := newZfsBase(t)
 		setExpire(t, newDataset(t, base, "parent"), expiredDate)
 		setExpire(t, newDataset(t, base, "parent/child"), expiredDate)
 		setExpire(t, newDataset(t, base, "sibling"), futureDate)
-		runXpire(t, "--path", basePath, "--prune")
-		assertDatasetGone(t, base+"/parent/child")
 		assertRun(t, RC_OK, nil, "--path", basePath, "--prune")
+		assertDatasetGone(t, base+"/parent/child")
 		assertDatasetGone(t, base+"/parent")
 		assertDatasetExists(t, base+"/sibling")
 	})
 
 	t.Run("prune-expired-dataset-with-snapshot", func(t *testing.T) {
 		base, basePath := newZfsBase(t)
-		setExpire(t, newDataset(t, base, "data"), expiredDate)
+		data := newDataset(t, base, "data")
+		setExpire(t, data, expiredDate)
 		sh(t, "zfs", "snapshot", base+"/data@snap")
-		assertRun(t, RC_ERR_PLUGIN, []string{"failed to destroy dataset '" + base + "/data'"},
+		assertRun(t, RC_ERR_PLUGIN, []string{"failed to destroy dataset mounted under '" + data + "'"},
 			"--path", basePath, "--prune")
 		assertDatasetExists(t, base+"/data")
 		assertDatasetExists(t, base+"/data@snap")

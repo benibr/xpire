@@ -114,8 +114,8 @@ func TestBTRFSSafety(t *testing.T) {
 		}
 	})
 
-	// the order in which btrfs lists parent and child is not defined, so
-	// the parent may need a second run
+	// the order in which btrfs lists parent and child is not defined, xpire
+	// sorts children first so that one run deletes both
 	t.Run("prune-expired-parent-and-child", func(t *testing.T) {
 		base := newBtrfsBase(t)
 		parent := newSubvolume(t, filepath.Join(base, "parent"))
@@ -124,9 +124,8 @@ func TestBTRFSSafety(t *testing.T) {
 		setExpire(t, parent, expiredDate)
 		setExpire(t, child, expiredDate)
 		setExpire(t, sibling, futureDate)
-		runXpire(t, "--path", base, "--prune")
+		assertRun(t, RC_OK, nil, "--path", base, "--prune")
 		assertGone(t, child)
-		runXpire(t, "--path", base, "--prune")
 		assertGone(t, parent)
 		assertExists(t, sibling)
 	})

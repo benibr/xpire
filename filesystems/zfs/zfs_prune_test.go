@@ -70,8 +70,8 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				f := newFakeZfs(t, scopeDatasets)
-				if _, err := (ZfsPlugin{}).PruneExpired(f.path(tt.path)); err != nil {
-					t.Errorf("PruneExpired failed: %v", err)
+				if err := prune(f.path(tt.path)); err != nil {
+					t.Errorf("prune failed: %v", err)
 				}
 				f.assertDestroyed(t, tt.want...)
 			})
@@ -84,8 +84,8 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 		if err := os.Symlink(f.path("pool/expired"), link); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := (ZfsPlugin{}).PruneExpired(link); err != nil {
-			t.Errorf("PruneExpired failed: %v", err)
+		if err := prune(link); err != nil {
+			t.Errorf("prune failed: %v", err)
 		}
 		f.assertDestroyed(t, "pool/expired")
 	})
@@ -100,8 +100,8 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 			t.Fatal(err)
 		}
 		t.Cleanup(func() { os.Chdir(cwd) })
-		if _, err := (ZfsPlugin{}).PruneExpired("sub"); err != nil {
-			t.Errorf("PruneExpired failed: %v", err)
+		if err := prune("sub"); err != nil {
+			t.Errorf("prune failed: %v", err)
 		}
 		f.assertDestroyed(t, "pool/sub/deep")
 	})
@@ -112,8 +112,8 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 		if err := os.Mkdir(dir, 0755); err != nil {
 			t.Fatal(err)
 		}
-		if _, err := (ZfsPlugin{}).PruneExpired(dir); err != nil {
-			t.Errorf("PruneExpired failed: %v", err)
+		if err := prune(dir); err != nil {
+			t.Errorf("prune failed: %v", err)
 		}
 		// the expired dataset is above the given path, not below
 		f.assertDestroyed(t)
@@ -121,7 +121,7 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 
 	t.Run("plain-directory-outside-datasets", func(t *testing.T) {
 		f := newFakeZfs(t, scopeDatasets)
-		(ZfsPlugin{}).PruneExpired(t.TempDir())
+		prune(t.TempDir())
 		f.assertDestroyed(t)
 	})
 
@@ -130,8 +130,8 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 	// See K11 in TEST_PLAN.md
 	t.Run("root-path", func(t *testing.T) {
 		f := newFakeZfs(t, scopeDatasets)
-		if _, err := (ZfsPlugin{}).PruneExpired("/"); err != nil {
-			t.Errorf("PruneExpired failed: %v", err)
+		if err := prune("/"); err != nil {
+			t.Errorf("prune failed: %v", err)
 		}
 		f.assertDestroyed(t, "pool/expired", "pool/expired2", "pool/sub/deep", "other/expired")
 	})
@@ -148,7 +148,7 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 			if err := os.Symlink(f.path("gone"), f.path("dangling")); err != nil {
 				t.Fatal(err)
 			}
-			if _, err := (ZfsPlugin{}).PruneExpired(f.path(path)); err == nil {
+			if err := prune(f.path(path)); err == nil {
 				t.Error("PruneExpired succeeded on a path that cannot be resolved")
 			}
 			f.assertDestroyed(t)
@@ -164,16 +164,16 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 			{name: "pool/future", mount: "pool/future", expire: futureDate},
 		})
 		t.Setenv("FAKE_ZFS_FAIL_DESTROY", "pool/b")
-		_, err := (ZfsPlugin{}).PruneExpired(f.path("pool"))
+		err := prune(f.path("pool"))
 		// the failure of one dataset must not stop the others
 		f.assertDestroyed(t, "pool/a", "pool/b", "pool/c")
 		if err == nil {
 			t.Fatal("PruneExpired succeeded although a destroy failed")
 		}
-		if !strings.Contains(err.Error(), "'pool/b'") {
+		if !strings.Contains(err.Error(), "'"+f.path("pool/b")+"'") {
 			t.Errorf("error does not name the failed dataset: %v", err)
 		}
-		for _, ds := range []string{"'pool/a'", "'pool/c'", "'pool/future'"} {
+		for _, ds := range []string{"pool/a'", "pool/c'", "pool/future'"} {
 			if strings.Contains(err.Error(), ds) {
 				t.Errorf("error names %s which did not fail: %v", ds, err)
 			}
@@ -189,7 +189,7 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 			{name: "pool/expired", mount: "pool/expired", expire: expiredDate},
 		})
 		t.Setenv("FAKE_ZFS_FAIL_GET", "pool/broken")
-		_, err := (ZfsPlugin{}).PruneExpired(f.path("pool"))
+		err := prune(f.path("pool"))
 		f.assertDestroyed(t, "pool/expired")
 		if err == nil {
 			t.Error("PruneExpired succeeded although a dataset could not be checked")
@@ -206,8 +206,8 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 			{name: "pool/future@snap", mount: "-", typ: "snapshot"},
 			{name: "pool/volume", mount: "-", typ: "volume"},
 		})
-		if _, err := (ZfsPlugin{}).PruneExpired(f.path("pool")); err != nil {
-			t.Errorf("PruneExpired failed: %v", err)
+		if err := prune(f.path("pool")); err != nil {
+			t.Errorf("prune failed: %v", err)
 		}
 		f.assertDestroyed(t)
 	})
@@ -220,9 +220,9 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 			{name: "pool/parent", mount: "pool/parent", expire: expiredDate},
 			{name: "pool/parent/child", mount: "pool/parent/child", expire: futureDate},
 		})
-		_, err := (ZfsPlugin{}).PruneExpired(f.path("pool"))
+		err := prune(f.path("pool"))
 		f.assertDestroyed(t, "pool/parent")
-		if err == nil || !strings.Contains(err.Error(), "'pool/parent'") {
+		if err == nil || !strings.Contains(err.Error(), "'"+f.path("pool/parent")+"'") {
 			t.Errorf("error does not name the dataset with children: %v", err)
 		}
 	})
@@ -233,7 +233,7 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 			{name: "pool/data", mount: "pool/data", expire: expiredDate},
 			{name: "pool/data@snap", mount: "-", typ: "snapshot"},
 		})
-		_, err := (ZfsPlugin{}).PruneExpired(f.path("pool"))
+		err := prune(f.path("pool"))
 		f.assertDestroyed(t, "pool/data")
 		if err == nil {
 			t.Error("PruneExpired succeeded although the dataset has a snapshot")
@@ -247,8 +247,8 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 			{name: "pool/odd-_.:name2", mount: "pool/with space/dätäset2", expire: futureDate},
 			{name: "pool/-rf", mount: "pool/-rf", expire: expiredDate},
 		})
-		if _, err := (ZfsPlugin{}).PruneExpired(f.path("pool/with space")); err != nil {
-			t.Errorf("PruneExpired failed: %v", err)
+		if err := prune(f.path("pool/with space")); err != nil {
+			t.Errorf("prune failed: %v", err)
 		}
 		f.assertDestroyed(t, "pool/odd-_.:name")
 	})
@@ -262,8 +262,8 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 			{name: "pool/hour-ago", mount: "pool/hour-ago", expire: now.Add(-time.Hour).Format(TimeFormat)},
 			{name: "pool/in-an-hour", mount: "pool/in-an-hour", expire: now.Add(time.Hour).Format(TimeFormat)},
 		})
-		if _, err := (ZfsPlugin{}).PruneExpired(f.path("pool")); err != nil {
-			t.Errorf("PruneExpired failed: %v", err)
+		if err := prune(f.path("pool")); err != nil {
+			t.Errorf("prune failed: %v", err)
 		}
 		f.assertDestroyed(t, "pool/hour-ago")
 	})

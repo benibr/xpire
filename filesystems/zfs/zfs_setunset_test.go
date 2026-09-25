@@ -15,7 +15,6 @@ package main
 
 import (
 	"os"
-	"strings"
 	"testing"
 	"time"
 )
@@ -24,16 +23,20 @@ import (
 func TestReadOnlyFakeZfs(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
 		f := newFakeZfs(t, scopeDatasets)
-		if _, err := (ZfsPlugin{}).List(f.path("pool")); err != nil {
+		found, err := (ZfsPlugin{}).List(f.path("pool"))
+		if err != nil {
 			t.Errorf("List failed: %v", err)
 		}
 		f.assertDestroyed(t)
-		for _, want := range []string{
-			"Dataset 'pool/expired' expired since " + expiredDate,
-			"Dataset 'pool/future' expires in " + futureDate,
+		for path, want := range map[string]string{
+			"pool/expired": expiredDate,
+			"pool/future":  futureDate,
 		} {
-			if !strings.Contains(f.out.String(), want) {
-				t.Errorf("expected log to contain '%s', got:\n%s", want, f.out)
+			got, ok := found[f.path(path)]
+			if !ok {
+				t.Errorf("expected List to contain '%s', got:\n%v", f.path(path), found)
+			} else if got.Format(TimeFormat) != want {
+				t.Errorf("List date of '%s' = '%s', want '%s'", path, got.Format(TimeFormat), want)
 			}
 		}
 	})

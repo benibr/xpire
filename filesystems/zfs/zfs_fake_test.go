@@ -130,6 +130,15 @@ func (f *fakeZfs) path(rel string) string {
 	return filepath.Join(f.root, rel)
 }
 
+// prune runs List and PruneExpired on the path the same way xpire does
+func prune(path string) error {
+	found, err := (ZfsPlugin{}).List(path)
+	if err != nil {
+		return err
+	}
+	return (ZfsPlugin{}).PruneExpired(found)
+}
+
 // calls returns the arguments of every call of the fake 'zfs' command
 func (f *fakeZfs) calls(t *testing.T) [][]string {
 	t.Helper()
@@ -203,8 +212,8 @@ func TestFakeZfs(t *testing.T) {
 		{name: "pool/expired", mount: "pool/expired", expire: expiredDate},
 		{name: "pool/future", mount: "pool/future", expire: futureDate},
 	})
-	if _, err := (ZfsPlugin{}).PruneExpired(f.path("pool")); err != nil {
-		t.Errorf("PruneExpired failed: %v", err)
+	if err := prune(f.path("pool")); err != nil {
+		t.Errorf("prune failed: %v", err)
 	}
 	f.assertDestroyed(t, "pool/expired")
 }

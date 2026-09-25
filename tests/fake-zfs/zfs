@@ -34,6 +34,20 @@ if [[ "$*" == "get -rHp -t all all" ]]; then
   exit 0
 fi
 
+# all properties of one dataset, used by go-zfs GetDataset. Like the real
+# command it also accepts the mountpoint of a mounted dataset
+if [[ $# -eq 4 && "$1" == "get" && "$2" == "-Hp" && "$3" == "all" ]]; then
+  while IFS=$'\t' read -r name mountpoint mounted type; do
+    if [[ "$name" == "$4" || ( "$mounted" == "yes" && "$mountpoint" == "$4" ) ]]; then
+      printf '%s\ttype\t%s\t-\n' "$name" "$type"
+      printf '%s\tmountpoint\t%s\tdefault\n' "$name" "$mountpoint"
+      exit 0
+    fi
+  done < "$FAKE_ZFS_DATASETS"
+  echo "cannot open '$4': dataset does not exist" >&2
+  exit 1
+fi
+
 # get one property of one dataset
 if [[ $# -eq 4 && "$1" == "get" && "$2" == "-H" ]]; then
   if in_list "$4" "${FAKE_ZFS_FAIL_GET:-}"; then
