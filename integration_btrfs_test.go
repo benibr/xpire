@@ -166,6 +166,21 @@ func TestBTRFS(t *testing.T) {
 		assertExists(t, parent)
 	})
 
+	t.Run("prune-dry-run", func(t *testing.T) {
+		base := newBtrfsBase(t)
+		expired := newSubvolume(t, filepath.Join(base, "expired"))
+		future := newSubvolume(t, filepath.Join(base, "future"))
+		setExpire(t, expired, expiredDate)
+		setExpire(t, future, futureDate)
+		abs, _ := filepath.Abs(base)
+		out := assertRun(t, RC_OK, []string{"↳ '" + abs + "/expired' expired since " + expiredDate},
+			"--path", base, "--prune", "--dry-run")
+		assertNotContains(t, out, "/future'")
+		assertNotContains(t, out, "pruning expired data")
+		assertExists(t, expired)
+		assertExists(t, future)
+	})
+
 	t.Run("prune-nested-both-expired", func(t *testing.T) {
 		parent := newSubvolume(t, filepath.Join(newBtrfsBase(t), "parent"))
 		child := newSubvolume(t, filepath.Join(parent, "child"))

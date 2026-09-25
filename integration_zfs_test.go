@@ -187,6 +187,18 @@ func TestZFS(t *testing.T) {
 		assertDatasetExists(t, base+"/parent")
 	})
 
+	t.Run("prune-dry-run", func(t *testing.T) {
+		base, path := newZfsBase(t)
+		setExpire(t, newDataset(t, base, "expired"), expiredDate)
+		setExpire(t, newDataset(t, base, "future"), futureDate)
+		out := assertRun(t, RC_OK, []string{"↳ '" + path + "/expired' expired since " + expiredDate},
+			"--path", path, "--prune", "--dry-run")
+		assertNotContains(t, out, "/future'")
+		assertNotContains(t, out, "pruning expired data")
+		assertDatasetExists(t, base+"/expired")
+		assertDatasetExists(t, base+"/future")
+	})
+
 	t.Run("prune-on-non-dataset-directory", func(t *testing.T) {
 		base, path := newZfsBase(t)
 		setExpire(t, newDataset(t, base, "ds"), expiredDate)
