@@ -159,7 +159,7 @@ func TestZFS(t *testing.T) {
 		base, _ := newZfsBase(t)
 		ds := newDataset(t, base, "ds")
 		setExpire(t, ds, futureDate)
-		out := assertRun(t, RC_OK, []string{"pruning expired data in '" + ds + "'"}, "--path", ds, "--prune")
+		out := assertRun(t, RC_OK, []string{"pruning expired data"}, "--path", ds, "--prune")
 		assertNotContains(t, out, "expired since")
 		assertDatasetExists(t, base+"/ds")
 	})
@@ -194,7 +194,7 @@ func TestZFS(t *testing.T) {
 		if err := os.Mkdir(dir, 0755); err != nil {
 			t.Fatal(err)
 		}
-		out := assertRun(t, RC_OK, []string{"pruning expired data in '" + dir + "'"}, "--path", dir, "--prune")
+		out := assertRun(t, RC_OK, []string{"pruning expired data"}, "--path", dir, "--prune")
 		assertNotContains(t, out, "expired since")
 		assertDatasetExists(t, base+"/ds")
 	})

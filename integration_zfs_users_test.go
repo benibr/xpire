@@ -40,7 +40,7 @@ func TestZFSUsers(t *testing.T) {
 		ds := newDataset(t, base, "ds")
 		chown(t, ds, ownerUID, ownerGID)
 		setExpire(t, ds, expiredDate)
-		assertRunAs(t, ownerUID, ownerGID, RC_ERR_PLUGIN, []string{"failed to destroy dataset '" + ds + "'"},
+		assertRunAs(t, ownerUID, ownerGID, RC_ERR_PLUGIN, []string{"failed to destroy dataset mounted under '" + ds + "'"},
 			"--path", ds, "--prune")
 		assertDatasetExists(t, base+"/ds")
 	})
