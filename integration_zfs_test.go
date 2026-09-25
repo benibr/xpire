@@ -146,8 +146,8 @@ func TestZFS(t *testing.T) {
 		newDataset(t, base, "none")
 		out := assertRun(t, RC_OK, []string{
 			"Listing data in '" + path + "'",
-			"↳ Dataset '" + base + "/expired' expired since " + expiredDate,
-			"↳ Dataset '" + base + "/future' expires in " + futureDate,
+			"↳ '" + path + "/expired' expired since " + expiredDate,
+			"↳ '" + path + "/future' expires in " + futureDate,
 		}, "--path", path, "--list")
 		assertNotContains(t, out, "/none'")
 		for _, ds := range []string{"expired", "future", "none"} {
@@ -168,7 +168,7 @@ func TestZFS(t *testing.T) {
 		base, _ := newZfsBase(t)
 		ds := newDataset(t, base, "ds")
 		setExpire(t, ds, expiredDate)
-		assertRun(t, RC_OK, []string{"↳ Dataset '" + base + "/ds' expired since " + expiredDate},
+		assertRun(t, RC_OK, []string{"↳ Dataset '" + ds + "' expired since " + expiredDate},
 			"--path", ds, "--prune")
 		assertDatasetGone(t, base+"/ds")
 	})
@@ -176,9 +176,10 @@ func TestZFS(t *testing.T) {
 	t.Run("prune-one-sub-dataset-expired", func(t *testing.T) {
 		base, _ := newZfsBase(t)
 		parent := newDataset(t, base, "parent")
-		setExpire(t, newDataset(t, base, "parent/expired"), expiredDate)
+		expired := newDataset(t, base, "parent/expired")
+		setExpire(t, expired, expiredDate)
 		setExpire(t, newDataset(t, base, "parent/future"), futureDate)
-		out := assertRun(t, RC_OK, []string{"↳ Dataset '" + base + "/parent/expired' expired since " + expiredDate},
+		out := assertRun(t, RC_OK, []string{"↳ Dataset '" + expired + "' expired since " + expiredDate},
 			"--path", parent, "--prune")
 		assertNotContains(t, out, "/future'")
 		assertDatasetGone(t, base+"/parent/expired")
