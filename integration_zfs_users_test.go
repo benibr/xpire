@@ -31,7 +31,7 @@ func TestZFSUsers(t *testing.T) {
 	t.Run("list-as-non-root", func(t *testing.T) {
 		base, path := newZfsBase(t)
 		setExpire(t, newDataset(t, base, "ds"), expiredDate)
-		assertRunAs(t, ownerUID, ownerGID, RC_OK, []string{"↳ Dataset '" + base + "/ds' expired since " + expiredDate},
+		assertRunAs(t, ownerUID, ownerGID, RC_OK, []string{"↳ '" + path + "/ds' expired since " + expiredDate},
 			"--path", path, "--list")
 	})
 
@@ -40,7 +40,7 @@ func TestZFSUsers(t *testing.T) {
 		ds := newDataset(t, base, "ds")
 		chown(t, ds, ownerUID, ownerGID)
 		setExpire(t, ds, expiredDate)
-		assertRunAs(t, ownerUID, ownerGID, RC_ERR_PLUGIN, []string{"failed to destroy dataset '" + base + "/ds'"},
+		assertRunAs(t, ownerUID, ownerGID, RC_ERR_PLUGIN, []string{"failed to destroy dataset '" + ds + "'"},
 			"--path", ds, "--prune")
 		assertDatasetExists(t, base+"/ds")
 	})
@@ -118,7 +118,7 @@ func TestZFSUsers(t *testing.T) {
 		ds := newDataset(t, base, "ds")
 		chown(t, ds, ownerUID, ownerGID)
 		assertRunAs(t, ownerUID, ownerGID, RC_OK, nil, "--path", ds, "--set", expiredDate)
-		assertRun(t, RC_OK, []string{"↳ Dataset '" + base + "/ds' expired since " + expiredDate},
+		assertRun(t, RC_OK, []string{"↳ Dataset '" + ds + "' expired since " + expiredDate},
 			"--path", ds, "--prune")
 		assertDatasetGone(t, base+"/ds")
 	})
