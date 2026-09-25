@@ -153,7 +153,8 @@ func (p ZfsPlugin) SetExpireDate(t time.Time, path string) error {
 
 func (p ZfsPlugin) PruneExpired(paths map[string]time.Time) error {
 	var destroyErrs []error
-	for path, date := range paths {
+	for _, path := range helpers.SortPathsHierarchically(paths) {
+		date := paths[path]
 		dsName, err := DatasetNameFromPath(path)
 		if err != nil {
 			return fmt.Errorf("failed find dataset name for path '%s': %w", path, err)

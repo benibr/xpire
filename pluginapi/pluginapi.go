@@ -30,6 +30,8 @@ type FsPluginApi interface {
 	// xpire passes the return map from List to this function
 	// to ensure the users delete only what they could also see
 	// Must check if a path is expired or not
+	// Must delete children before their parents, the map has no order
+	// (see helpers.SortPathsHierarchically)
 	// Must check/handle permissions.
 	// Returns only errors.
 	PruneExpired(paths map[string]time.Time) error

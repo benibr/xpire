@@ -20,6 +20,7 @@ import (
 	"plugin"
 	"syscall"
 	"time"
+	"xpire/helpers"
 )
 
 func errorHandler(err error, rc int, msg string) {
@@ -80,7 +81,9 @@ func printDates(data map[string]time.Time, printActive ...bool) {
 	if len(printActive) > 0 {
 		pa = printActive[0]
 	}
-	for path, date := range data {
+	// sort for a stable output, same order as pruning
+	for _, path := range helpers.SortPathsHierarchically(data) {
+		date := data[path]
 		if date.Before(time.Now()) {
 			fmt.Printf("↳ '%s' expired since %s\n", path, date.Format(TimeFormat))
 		} else {

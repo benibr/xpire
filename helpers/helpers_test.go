@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestCleanPath(t *testing.T) {
@@ -57,6 +58,34 @@ func TestCleanPath(t *testing.T) {
 			t.Error("expected an error for a non-existing path")
 		}
 	})
+}
+
+func TestSortPathsHierarchically(t *testing.T) {
+	now := time.Now()
+	paths := map[string]time.Time{
+		"/a":     now,
+		"/a/b/c": now,
+		"/z":     now,
+		"/ab":    now,
+		"/a/b":   now,
+	}
+	got := SortPathsHierarchically(paths)
+	if len(got) != len(paths) {
+		t.Fatalf("SortPathsHierarchically() returned %d paths, want %d", len(got), len(paths))
+	}
+	index := make(map[string]int, len(got))
+	for i, p := range got {
+		index[p] = i
+	}
+	for _, tt := range []struct{ child, parent string }{
+		{"/a/b/c", "/a/b"},
+		{"/a/b", "/a"},
+		{"/a/b/c", "/a"},
+	} {
+		if index[tt.child] > index[tt.parent] {
+			t.Errorf("SortPathsHierarchically() = %v, want %q before %q", got, tt.child, tt.parent)
+		}
+	}
 }
 
 func TestIsRoot(t *testing.T) {

@@ -154,7 +154,8 @@ func (p BtrfsPlugin) SetExpireDate(t time.Time, path string) error {
 func (p BtrfsPlugin) PruneExpired(paths map[string]time.Time) error {
 	log.Info("pruning expired data")
 	var deleteErrs []error
-	for path, date := range paths {
+	for _, path := range helpers.SortPathsHierarchically(paths) {
+		date := paths[path]
 		log.Debug(fmt.Sprintf("checking path='%s', date='%s'", path, date.Format(TimeFormat)))
 		absPath, _ := helpers.CleanPath(path)
 		if date.Before(time.Now()) {
