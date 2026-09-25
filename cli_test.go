@@ -88,6 +88,12 @@ func TestCLI(t *testing.T) {
 			output: "--set or --prune",
 		},
 		{
+			name:   "dry-run-without-prune",
+			args:   []string{"--path", dir, "--plugin", "btrfs", "--dry-run"},
+			rc:     RC_ERR_ARGS,
+			output: "--set or --prune",
+		},
+		{
 			name:   "invalid-date",
 			args:   []string{"--path", dir, "--plugin", "btrfs", "--set", "2002-01-01"},
 			rc:     RC_ERR_ARGS,
