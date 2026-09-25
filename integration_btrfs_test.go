@@ -166,6 +166,31 @@ func TestBTRFS(t *testing.T) {
 		assertExists(t, parent)
 	})
 
+	t.Run("prune-nested-both-expired", func(t *testing.T) {
+		parent := newSubvolume(t, filepath.Join(newBtrfsBase(t), "parent"))
+		child := newSubvolume(t, filepath.Join(parent, "child"))
+		setExpire(t, parent, expiredDate)
+		setExpire(t, child, expiredDate)
+		absParent, _ := filepath.Abs(parent)
+		absChild, _ := filepath.Abs(child)
+		assertRun(t, RC_OK, []string{
+			"↳ '" + absChild + "' expired since " + expiredDate,
+			"↳ '" + absParent + "' expired since " + expiredDate,
+		}, "--path", parent, "--prune")
+		assertGone(t, child)
+		assertGone(t, parent)
+	})
+
+	t.Run("prune-nested-parent-expired-child-not", func(t *testing.T) {
+		parent := newSubvolume(t, filepath.Join(newBtrfsBase(t), "parent"))
+		child := newSubvolume(t, filepath.Join(parent, "child"))
+		setExpire(t, parent, expiredDate)
+		setExpire(t, child, futureDate)
+		assertRun(t, RC_ERR_PLUGIN, nil, "--path", parent, "--prune")
+		assertExists(t, child)
+		assertExists(t, parent)
+	})
+
 	t.Run("prune-on-non-subvolume-directory", func(t *testing.T) {
 		base := newBtrfsBase(t)
 		sv := newSubvolume(t, filepath.Join(base, "sv"))
