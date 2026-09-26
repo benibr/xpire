@@ -63,7 +63,10 @@ type fakeZfs struct {
 // running test and creates a mountpoint directory for every dataset.
 // PATH only contains the fake afterwards, so the real 'zfs' command can
 // never be reached, not even if xpire wrongly widens its scope.
-// Not usable in parallel tests because PATH is process global.
+// Not usable in parallel tests because PATH is process global: t.Setenv
+// panics in a test that called t.Parallel, so this cannot go unnoticed.
+// Other packages are unaffected, 'go test ./...' runs each in its own
+// process.
 func newFakeZfs(t *testing.T, datasets []fakeDS) *fakeZfs {
 	t.Helper()
 	fakeDir, err := filepath.Abs(fakeZfsDir)
