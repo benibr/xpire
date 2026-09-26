@@ -56,7 +56,7 @@ test-unit:
 
 test-integration: test-install
 	@echo "running all tests"
-	$(GOTEST) -tags integration . || { \
+	$(GOTEST) -count=1 -tags integration . || { \
 		$(MAKE) test-teardown; \
 		exit 1; \
 	}
@@ -66,7 +66,7 @@ test-btrfs: test-install test-setup-btrfs test-run-btrfs test-teardown-btrfs
 
 test-run-btrfs: test-install
 	@echo "running btrfs tests"
-	$(GOTEST) -tags integration -run TestBTRFS . || { \
+	$(GOTEST) -count=1 -tags integration -run TestBTRFS . || { \
 		$(MAKE) test-teardown-btrfs; \
 		exit 1; \
 	}
@@ -76,7 +76,7 @@ test-zfs: test-install test-setup-zfs test-run-zfs test-teardown-zfs
 
 test-run-zfs: test-install
 	@echo "running zfs tests"
-	$(GOTEST) -tags integration -run TestZFS . || { \
+	$(GOTEST) -count=1 -tags integration -run TestZFS . || { \
 		$(MAKE) test-teardown-zfs; \
 		exit 1; \
 	}
