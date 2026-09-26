@@ -25,6 +25,7 @@ import (
 
 func errorHandler(err error, rc int, msg string) {
 	if err != nil {
+		fmt.Println(msg)
 		log.Error(err)
 		os.Exit(rc)
 	}
@@ -32,6 +33,7 @@ func errorHandler(err error, rc int, msg string) {
 
 func okHandler(ok bool, rc int, msg string) {
 	if !ok {
+		fmt.Println(msg)
 		log.Error(msg)
 		os.Exit(rc)
 	}
