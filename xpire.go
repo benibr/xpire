@@ -121,7 +121,7 @@ func main() {
 
 		// error in args
 	} else {
-		log.Error("you have to specicy either --set or --prune")
+		log.Error("you have to specify a command. Use --help to get help.")
 		os.Exit(RC_ERR_ARGS)
 	}
 	os.Exit(RC_OK)

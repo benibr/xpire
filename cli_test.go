@@ -85,13 +85,13 @@ func TestCLI(t *testing.T) {
 			name:   "missing-action",
 			args:   []string{"--path", dir, "--plugin", "btrfs"},
 			rc:     RC_ERR_ARGS,
-			output: "--set or --prune",
+			output: "--help to get help",
 		},
 		{
 			name:   "dry-run-without-prune",
 			args:   []string{"--path", dir, "--plugin", "btrfs", "--dry-run"},
 			rc:     RC_ERR_ARGS,
-			output: "--set or --prune",
+			output: "--help to get help",
 		},
 		{
 			name:   "invalid-date",
