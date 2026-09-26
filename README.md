@@ -10,18 +10,18 @@ xpire to make use of filesystem specific structures like
 subvolumes or snapshots to prevent expensive tree walks
 during pruning.
 Each plugin can decide where the expiry date is stored but the most common case
-is to use the extended attribute `user.expire="YYYY-MM-DD HH:MM:SS"`.
+is to use the extended attribute `user.expire="YYYY-MM-DDThh:mm:ssZ"`.
 
 ## Usage
 
 ```
-# set a expiration date
+# set a expiration date (defaults to UTC)
 xpire --path /data/foo/ --set "2023-05-01 15:00:00"
 
 # list all expiration dates (past and future)
 xpire --path /data --list
 
-# recursively prune all expired data
+# recursively prune all expired data under this path
 xpire --path /data --prune
 
 # show what would be pruned without deleting anything

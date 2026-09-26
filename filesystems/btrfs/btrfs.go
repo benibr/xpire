@@ -29,7 +29,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const TimeFormat = time.DateTime
+const TimeFormat = time.RFC3339
 const RC_OK = 0
 const RC_ERR_PLUGIN = 7
 

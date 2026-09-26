@@ -24,7 +24,7 @@ import (
 )
 
 // global const
-const TimeFormat = time.DateTime
+const TimeFormat = "2006-01-02 15:04:05 MST"
 const RC_OK = 0
 const RC_ERR = 1
 const RC_ERR_ARGS = 5
@@ -89,9 +89,19 @@ func main() {
 
 	// --set expiration date
 	if args.SetExpireDate != "" {
-		parsedTime, err = time.Parse(time.DateTime, args.SetExpireDate)
-		errorHandler(err, RC_ERR_ARGS, "Cannot parse specified date")
-		log.Info(fmt.Sprintf("setting expiration date on '%s' to %s", args.Path, parsedTime.Format(time.DateTime)))
+		parsedTime, err = time.Parse(time.RFC3339, args.SetExpireDate)
+		if err != nil {
+			log.Warn("Cannot parse specified date as RFC3339 format")
+			log.Debug(err)
+			parsedTime, err = time.Parse(TimeFormat, args.SetExpireDate)
+			if err != nil {
+				log.Warn("Cannot parse specified date as xpire format")
+				log.Debug(err)
+				parsedTime, err = time.Parse(time.DateTime, args.SetExpireDate)
+				errorHandler(err, RC_ERR_ARGS, "Cannot parse specified date with any known format, bailing out")
+			}
+		}
+		log.Info(fmt.Sprintf("setting expiration date on '%s' to %s", args.Path, parsedTime.Format(TimeFormat)))
 		err = fsplugin.SetExpireDate(parsedTime, args.Path)
 		errorHandler(err, RC_ERR_FS, "Error: Cannot set expiry date")
 
