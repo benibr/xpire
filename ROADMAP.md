@@ -29,9 +29,10 @@
 - [x] split tests per plugin (agent)
 - [x] add unit tests (agent)
 - [x] tests with multiple users. exec as nobody (agent)
-- [ ] check if more tests are needed (agent)
-    - [ ] make: print test results PASS/FAIL like github pipeline (agent)
+- [x] check if more tests are needed (agent)
+    - [x] make: print test results PASS/FAIL like github pipeline (agent)
 - [ ] fix bug which came up when testing
+    - [ ] TODO.md
     - [ ] make time comparsion of xattr vs. now() a helper func which relies on UTC
 - [x] add GitHub pipeline on PRs (agent)
 - [x] protect main branch PRs
@@ -55,6 +56,7 @@
   - [ ] only use absolute paths in output
 - [ ] align log/error messages in all plugins
 - [ ] update options hints/help
+- [ ] only allow one command to be set
 - [ ] --dry-run for all commands
 - [ ] write extensive READMEs for plugins
 - [ ] Improve README regarding Getting-Started
@@ -64,6 +66,7 @@
 - [ ] prune should return list of deleted paths and xpire shold print them
 - [ ] only use `expiration_date` or `date` for short
 - [ ] make: print test results PASS/FAIL like github pipeline (agent)
+- [ ] make code DRY
 
 ### version 0.5 - basic plugin
 - [ ] posix plugin
