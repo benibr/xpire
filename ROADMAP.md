@@ -55,6 +55,7 @@
 - [ ] make output more readable
   - [ ] only use absolute paths in output
 - [ ] align log/error messages in all plugins
+  - [ ] errHandler, okHandler should print msg as Error and err as Debug Message
 - [ ] update options hints/help
 - [ ] only allow one command to be set
 - [ ] --dry-run for all commands
