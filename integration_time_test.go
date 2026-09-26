@@ -66,7 +66,7 @@ func testTime(t *testing.T, factory objectFactory) {
 		assertExists(t, future)
 	})
 
-	// KNOWN ISSUE K3 (TEST_PLAN.md): dates are read as UTC but compared with
+	// KNOWN ISSUE K3: dates are read as UTC but compared with
 	// the local time. West of UTC data is deleted before the date the user
 	// gave is reached, east of UTC it is kept too long.
 	for _, zone := range []string{"UTC", "America/Los_Angeles", "Asia/Tokyo"} {

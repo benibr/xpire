@@ -127,7 +127,7 @@ func TestZFSUsers(t *testing.T) {
 
 	// Documents current behaviour: root trusts every date, also one that a
 	// user without an account set on a dataset of somebody else, because
-	// it is world-writable. Owner decision, see K-table in TEST_PLAN.md
+	// it is world-writable. Owner decision.
 	t.Run("root-prunes-date-set-by-other-user-on-world-writable", func(t *testing.T) {
 		base, basePath := newZfsBase(t)
 		ds := newDataset(t, base, "ds")

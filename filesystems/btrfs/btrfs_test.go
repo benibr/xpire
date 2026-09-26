@@ -65,7 +65,7 @@ func TestSubvolumeRelPath(t *testing.T) {
 		{name: "mountpoint-name-repeated", absPath: "/mnt/mnt/sub", mountPoint: "/mnt", mountRoot: "", want: "mnt/sub"},
 		{name: "nested-mount-root", absPath: "/home/user", mountPoint: "/home", mountRoot: "@/home", want: "@/home/user"},
 		// Documents current behaviour: an empty path means the whole mount,
-		// which is what makes K1 in TEST_PLAN.md dangerous
+		// which is what makes known issue K1 dangerous
 		{name: "empty-path", absPath: "", mountPoint: "/mnt", mountRoot: "", want: ""},
 	}
 	for _, tt := range tests {
@@ -101,7 +101,7 @@ func TestSubvolumeFullPath(t *testing.T) {
 	}
 }
 
-// KNOWN ISSUE K4 (TEST_PLAN.md): the mountpoint is removed anywhere in the
+// KNOWN ISSUE K4: the mountpoint is removed anywhere in the
 // path, not only in front. A path outside of the mountpoint, as
 // helpers.FindParentMount returns it for '/mntfoo', silently becomes the
 // name of a subvolume that has nothing to do with the path.
@@ -124,7 +124,7 @@ func TestSubvolumeRelPathOutsideMountpoint(t *testing.T) {
 	}
 }
 
-// KNOWN ISSUE K13 (TEST_PLAN.md): the mount root is removed as a string, not
+// KNOWN ISSUE K13: the mount root is removed as a string, not
 // as a path. A subvolume outside of the mount root is mapped to the path of
 // another subvolume. Not reachable today because findChildSubvolumes only
 // returns subvolumes below the mount root.

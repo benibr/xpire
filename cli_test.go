@@ -142,7 +142,7 @@ func TestCLI(t *testing.T) {
 			output: "--path missing",
 		},
 		{
-			// KNOWN ISSUE K8 (TEST_PLAN.md): errorHandler ignores its message
+			// KNOWN ISSUE K8: errorHandler ignores its message
 			name:   "unknown-plugin-message",
 			args:   []string{"--path", dir, "--plugin", "unknown", "--list"},
 			rc:     RC_ERR_PLUGIN,
@@ -184,7 +184,7 @@ func TestCLI(t *testing.T) {
 		})
 	}
 
-	// KNOWN ISSUE K1 (TEST_PLAN.md): with an explicit plugin nothing checks
+	// KNOWN ISSUE K1: with an explicit plugin nothing checks
 	// that the path exists, the plugins then work on an empty path, which
 	// means everything. Uses --list only, a --prune could delete data of
 	// the host that runs the tests.

@@ -99,7 +99,7 @@ func TestBTRFSSafety(t *testing.T) {
 		assertExists(t, future)
 	})
 
-	// KNOWN ISSUE K2 (TEST_PLAN.md): btrfs refuses to delete a subvolume
+	// KNOWN ISSUE K2: btrfs refuses to delete a subvolume
 	// that contains another one, but xpire exits with 0
 	t.Run("prune-expired-parent-with-future-child", func(t *testing.T) {
 		parent := newSubvolume(t, filepath.Join(newBtrfsBase(t), "parent"))
@@ -203,7 +203,7 @@ func TestBTRFSSafety(t *testing.T) {
 		assertExists(t, beside)
 	})
 
-	// KNOWN ISSUE K2 (TEST_PLAN.md): a failed delete is only logged, xpire
+	// KNOWN ISSUE K2: a failed delete is only logged, xpire
 	// exits with 0 although the expired subvolume is still there
 	t.Run("prune-fails", func(t *testing.T) {
 		base := newBtrfsBase(t)
@@ -428,7 +428,7 @@ func TestBTRFSSafety(t *testing.T) {
 		assertGone(t, sv)
 	})
 
-	// KNOWN ISSUE K1 (TEST_PLAN.md): a path that does not exist is not an
+	// KNOWN ISSUE K1: a path that does not exist is not an
 	// error with an explicit plugin. Uses --list only, the scope of a
 	// --prune would be the filesystem of the working directory.
 	t.Run("non-existing-path-with-plugin", func(t *testing.T) {
@@ -442,7 +442,7 @@ func TestBTRFSSafety(t *testing.T) {
 		assertNotContains(t, out, "↳")
 	})
 
-	// KNOWN ISSUE K5 (TEST_PLAN.md): nothing checks that the path is on
+	// KNOWN ISSUE K5: nothing checks that the path is on
 	// the filesystem of an explicitly given plugin
 	t.Run("zfs-plugin-on-btrfs-path", func(t *testing.T) {
 		if _, err := exec.LookPath("zfs"); err != nil {

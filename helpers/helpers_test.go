@@ -155,7 +155,7 @@ func TestFindParentMount(t *testing.T) {
 		}
 	})
 
-	// KNOWN ISSUE K4 (TEST_PLAN.md): mountpoints are matched as string prefix,
+	// KNOWN ISSUE K4: mountpoints are matched as string prefix,
 	// so the mount '<dir>/mnt' is taken for the parent of '<dir>/mntfoo'
 	t.Run("sibling-of-mountpoint-with-same-prefix", func(t *testing.T) {
 		if !IsRoot() {

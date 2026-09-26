@@ -136,7 +136,7 @@ func TestZFSSafety(t *testing.T) {
 
 	// Documents current behaviour: snapshots have no mountpoint and never
 	// expire, although the README of the plugin says they are pruned.
-	// See K9 in TEST_PLAN.md
+	// Known issue K9.
 	t.Run("prune-keeps-snapshots", func(t *testing.T) {
 		base, basePath := newZfsBase(t)
 		data := newDataset(t, base, "data")
@@ -261,7 +261,7 @@ func TestZFSSafety(t *testing.T) {
 		for name, dsName := range map[string]string{
 			"leading-dash": "-rf",
 			"punctuation":  "a_b.c:d-e",
-			// KNOWN ISSUE K14 (TEST_PLAN.md): go-zfs splits the output of zfs
+			// KNOWN ISSUE K14: go-zfs splits the output of zfs
 			// at spaces, xpire does not see datasets with a space in the name
 			"space": "with space",
 		} {
@@ -345,7 +345,7 @@ func TestZFSSafety(t *testing.T) {
 		assertDatasetGone(t, base+"/ds")
 	})
 
-	// KNOWN ISSUE K1 (TEST_PLAN.md): a path that does not exist is not an
+	// KNOWN ISSUE K1: a path that does not exist is not an
 	// error with an explicit plugin, all datasets of the host are in scope
 	// then. Uses --list only, a --prune could destroy data of the host that
 	// runs the tests. The prune is tested with the fake zfs command, see
@@ -360,7 +360,8 @@ func TestZFSSafety(t *testing.T) {
 		assertNotContains(t, out, "↳")
 	})
 
-	// see K5 in TEST_PLAN.md
+	// KNOWN ISSUE K5: nothing checks that the path is on the filesystem of
+	// an explicitly given plugin
 	t.Run("btrfs-plugin-on-zfs-path", func(t *testing.T) {
 		base, basePath := newZfsBase(t)
 		setExpire(t, newDataset(t, base, "expired"), expiredDate)

@@ -127,7 +127,7 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 
 	// Documents current behaviour: there is no guard against pruning '/',
 	// every expired dataset of every pool on the host is in scope then.
-	// See K11 in TEST_PLAN.md
+	// Known issue K11.
 	t.Run("root-path", func(t *testing.T) {
 		f := newFakeZfs(t, scopeDatasets)
 		if err := prune("/"); err != nil {
@@ -136,7 +136,7 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 		f.assertDestroyed(t, "pool/expired", "pool/expired2", "pool/sub/deep", "other/expired")
 	})
 
-	// KNOWN ISSUE K1 (TEST_PLAN.md): the error of CleanPath is discarded, so
+	// KNOWN ISSUE K1: the error of CleanPath is discarded, so
 	// a path that does not exist becomes "" and every dataset of the host
 	// lies "under" it
 	for name, path := range map[string]string{
@@ -180,7 +180,7 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 		}
 	})
 
-	// KNOWN ISSUE K7 (TEST_PLAN.md): errors of 'zfs get' are ignored, a
+	// KNOWN ISSUE K7: errors of 'zfs get' are ignored, a
 	// dataset whose properties cannot be read is skipped silently
 	t.Run("get-fails", func(t *testing.T) {
 		f := newFakeZfs(t, []fakeDS{
@@ -198,7 +198,7 @@ func TestPruneExpiredFakeZfs(t *testing.T) {
 
 	// Documents current behaviour: snapshots and volumes have no mountpoint
 	// and therefore never expire, although the README of the plugin says
-	// snapshots are pruned. See K9 in TEST_PLAN.md
+	// snapshots are pruned. Known issue K9.
 	t.Run("snapshots-and-volumes", func(t *testing.T) {
 		f := newFakeZfs(t, []fakeDS{
 			{name: "pool", mount: "pool"},
