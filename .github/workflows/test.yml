@@ -24,4 +24,4 @@ jobs:
       # integration tests create and mount test filesystems and run xpire as
       # other users, so they need root. sudo resets PATH, keep it to find go
       - name: test
-        run: sudo env "PATH=$PATH" make test GOTEST="go test -v"
+        run: sudo env "PATH=$PATH" make test

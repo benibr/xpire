@@ -3,7 +3,7 @@ SHELL := /bin/bash
 GOCMD = go
 GOBUILD = $(GOCMD) build
 GOCLEAN = $(GOCMD) clean
-GOTEST  = $(GOCMD) test
+GOTEST  = $(GOCMD) test -v
 
 # Define the main Go application
 MAIN_OUT = xpire
